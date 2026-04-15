@@ -49,6 +49,43 @@ npm run build                            # render full Main → out/shemak.mp4
 - [src/lib/brand.ts](src/lib/brand.ts) colors and fonts are **PLACEHOLDERS** until extracted from `Logo/insightgroup 사인규정.ai`. Do not invent brand values; flag and ask.
 - Scenes 01, 03–07 are currently **title-card placeholders**. Only section 02 (IGIntro) has real animation (four CountUp beats + brand reveal). Other scenes should be built out one at a time with the same pattern.
 
+## Section transitions (`@remotion/transitions`)
+
+Installed at the same `4.0.x` line as core Remotion. Use for cuts between the 7 sections in `Main`.
+
+**Pattern** — replace `<Series>` with `<TransitionSeries>`; transitions live *between* sequences and **overlap** the adjacent sequences (their frames come out of both sides, not added on top). Audio overlaps too, so keep transition frames inside leading/trailing silence of each section's mp3.
+
+```tsx
+import { TransitionSeries, linearTiming, springTiming } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+
+<TransitionSeries>
+  <TransitionSeries.Sequence durationInFrames={s1}><Intro /></TransitionSeries.Sequence>
+  <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: 20 })} />
+  <TransitionSeries.Sequence durationInFrames={s2}><IGIntro /></TransitionSeries.Sequence>
+</TransitionSeries>
+```
+
+**Presentation options** (import path = `@remotion/transitions/<name>`):
+- `fade({ shouldFadeOutExitingScene? })` — opacity crossfade. Safest default for corporate tone.
+- `slide({ direction? })` — `from-left` | `from-right` | `from-top` | `from-bottom`. Good for section headers.
+- `wipe({ direction? })` — same direction values; reveals B over A along an edge.
+- `clockWipe({ width, height })` — radial sweep. Dramatic; use sparingly (e.g., into closing).
+- `flip({ direction? })` — 3D card flip. Heavy; reserve for chapter breaks.
+- `iris({ width, height })` — circular reveal from center.
+- `cube({ direction? })` — 3D cube rotation. Requires perspective; check on full-res render.
+- `none()` — hard cut, but lets you keep the `TransitionSeries` structure consistent.
+- `customPresentation(...)` — write your own (interpolate via `presentationProgress`).
+
+**Timing options**:
+- `linearTiming({ durationInFrames, easing? })` — pass `Easing.bezier(...)` from `remotion` for curves.
+- `springTiming({ config?, durationInFrames?, durationRestThreshold? })` — physics-based; `config: { damping: 200 }` kills bounce for corporate feel.
+
+**Rules for this project**:
+- Default to `fade` + `linearTiming({ durationInFrames: 15-20 })` between sections. Reserve `slide`/`wipe` for moments the narration explicitly pivots topic (e.g., 04-bridge → 05-optic-view).
+- Transition duration is **subtracted from each section's playable length** — when adding a transition, confirm the overlap fits inside the silence padding of both mp3s, otherwise narration will overlap.
+- Never put a transition around `02-ig-intro`'s CountUp beats — the timing is locked to audio cues.
+
 ## Workflow constraints
 
 - **Narration timing is the master clock.** Animation timing is derived from per-section MP3 durations. Never tune motion beats before the section's audio exists.
