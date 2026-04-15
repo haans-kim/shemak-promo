@@ -1,0 +1,21 @@
+{
+  "name": "shemak-promo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion render Main out/shemak.mp4",
+    "build:section": "remotion render"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.270",
+    "@remotion/media-utils": "^4.0.270",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.270"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}

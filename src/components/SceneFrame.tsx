@@ -1,0 +1,28 @@
+import { AbsoluteFill, Audio, staticFile } from "remotion";
+import { BRAND } from "../lib/brand";
+
+interface Props {
+  audioSrc?: string; // "audio/02-ig-intro.mp3" — 파일 없으면 생략
+  background?: string;
+  children: React.ReactNode;
+}
+
+/**
+ * 공통 씬 래퍼. 배경·오디오·폰트 기본값 적용.
+ * audioSrc가 있고 실제 파일이 존재할 때만 <Audio> 렌더.
+ * (파일 부재 시 staticFile 호출 자체는 안전하지만 렌더 시점에 404 → 호출부에서 가드)
+ */
+export const SceneFrame: React.FC<Props> = ({ audioSrc, background, children }) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: background ?? BRAND.colors.paper,
+        color: BRAND.colors.ink,
+        fontFamily: BRAND.fonts.korean,
+      }}
+    >
+      {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
+      {children}
+    </AbsoluteFill>
+  );
+};
