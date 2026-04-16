@@ -1,8 +1,25 @@
-.env
-.venv/
-__pycache__/
-public/audio/
+# Dependencies
+node_modules/
+
+# Build output
 out/
 output/
-node_modules/
+*.tsbuildinfo
+*.log
+
+# Python (legacy scripts)
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+.env.local
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
