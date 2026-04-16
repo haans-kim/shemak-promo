@@ -85,6 +85,43 @@ import { fade } from "@remotion/transitions/fade";
 - Transition duration is **subtracted from each section's playable length** — when adding a transition, confirm the overlap fits inside the silence padding of both mp3s, otherwise narration will overlap.
 - Never put a transition around `02-ig-intro`'s CountUp beats — the timing is locked to audio cues.
 
+## Section-by-section render pipeline (primary workflow)
+
+Full-`Main` rendering takes >1 hour on mid-range laptops (ThinkPad T14 class). Use the per-section script instead — each section renders independently, results are cached, and `ffmpeg concat` stitches them in <1 second.
+
+```bash
+npm run render              # render only sections whose cache is stale, then concat → out/shemak.mp4
+npm run render:force        # force re-render all 9 sections + concat
+npm run render:sections     # render only, no concat
+npm run render:concat       # concat existing section mp4s, no render
+node scripts/render_all.mjs --only=03,05           # render specific sections (+ concat if all 9 exist)
+node scripts/render_all.mjs --force --only=03      # force re-render 03 only
+```
+
+**Cache behavior** ([scripts/render_all.mjs](scripts/render_all.mjs)) — Claude or a contributor running `npm run render` should understand these semantics:
+
+| Section mp4 state | Action | Log prefix |
+|---|---|---|
+| Exists, size > 0, source/audio not newer | Keep cache, skip render | `[skip]` |
+| Missing or 0 bytes (corrupt) | **Auto re-render** (concat would fail otherwise) | `[rebuild]` |
+| Source (`src/**`) newer than mp4 | Keep cache, emit warning only | `[warn]` |
+| Audio (`public/audio/{slug}.mp3`) newer than mp4 | Keep cache, emit warning only | `[warn]` |
+
+Source/audio newer is **deliberately non-destructive** — the script refuses to re-render on its own because re-rendering 9 sections is expensive and the contributor may have touched a file inadvertently (e.g. `touch`, formatter, typo fix in unrelated brand config). When you see `[warn]`, decide explicitly:
+
+- **You genuinely changed the code/audio and want it reflected**: `npm run render:force` (all 9) or `node scripts/render_all.mjs --force --only=03,05` (specific sections).
+- **The change was cosmetic/irrelevant, keep cached mp4**: do nothing — `npm run render` already kept the cache and proceeded to concat.
+
+When Claude assists with this project: if you edit any file under `src/`, always prompt the user to decide which sections need `--force` re-render. Do not assume silent `npm run render` captures the edit — it won't.
+
+**Tracked output files** — `.gitignore` allows only `out/sections/*.mp4` and `out/shemak.mp4` to be committed, so team members sync rendered artifacts via git. Each render cycle adds ~62 MB of binaries; consider Git LFS if history grows large.
+
+**Platform notes for T14 / non-Mac contributors**:
+- ffmpeg install: `choco install ffmpeg` (Windows), `sudo apt install ffmpeg` (Ubuntu), `brew install ffmpeg` (Mac).
+- **VSCode mp4 preview has no audio** (Electron webview limitation) — verify output with QuickTime / Windows Media Player / VLC / browser, not the VSCode tab.
+- `npm install` downloads Chromium Headless Shell (~150 MB from Google). Corporate proxies may block it — set `PUPPETEER_DOWNLOAD_BASE_URL` or install via VPN if it fails.
+- Remotion renders use all CPU cores; expect fan noise and battery drain. Plug in for long renders.
+
 ## Workflow constraints
 
 - **Narration timing is the master clock.** Animation timing is derived from per-section MP3 durations. Never tune motion beats before the section's audio exists.

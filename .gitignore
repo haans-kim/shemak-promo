@@ -1,8 +1,10 @@
 # Dependencies
 node_modules/
 
-# Build output
-out/
+# Build output — section mp4s와 최종본만 팀 싱크용으로 커밋, 나머지는 무시
+out/*
+!out/sections/
+!out/shemak.mp4
 output/
 *.tsbuildinfo
 *.log

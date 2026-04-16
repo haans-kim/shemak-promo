@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion render Main out/shemak.mp4",
-    "build:section": "remotion render"
+    "build:section": "remotion render",
+    "render": "node scripts/render_all.mjs",
+    "render:sections": "node scripts/render_all.mjs --no-concat",
+    "render:concat": "node scripts/render_all.mjs --concat-only",
+    "render:force": "node scripts/render_all.mjs --force"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.270",
