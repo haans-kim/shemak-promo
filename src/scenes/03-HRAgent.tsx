@@ -3,14 +3,13 @@ import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
 import { MouseCursor } from "../components/MouseCursor";
-import { Spotlight } from "../components/Spotlight";
 import { BRAND } from "../lib/brand";
 
 // 03 HR Agent (55s) — 사용자 v5 피드백:
 //   EXECUTIVE: 영상 13s 한 프레임을 정적 이미지로 사용 (영상은 18초 이후 다른 화면으로 전환되어 잘못 보임)
-//   → exec-cost-sim.jpg 정지 + 마우스 효과 + 스포트라이트
+//   → exec-cost-sim.jpg 정지 + 마우스 효과
 //
-//   EXECUTIVE  13.5~24.5s #2 인건비 시뮬레이션 (정적 이미지 + 마우스 + 스포트라이트)
+//   EXECUTIVE  13.5~24.5s #2 인건비 시뮬레이션 (정적 이미지 + 마우스)
 //   HR_HEAD_1  24.5~36.8s #3 몰입유형 설명     ilji 3s
 //   HR_HEAD_2  36.8~47.5s #4 AI 최적 인상률    ilji 13s
 //   TEAM_LEAD  48~55s     #5 팀 현황 1on1     hr-agent 29s
@@ -54,8 +53,6 @@ export const HRAgentScene: React.FC = () => {
       <TeamLeadPhase />
       {/* 마우스 움직임 (15~19.5s) — 보수적·균형·적극 모두 훑어줌 */}
       <MouseCursor waypoints={MOUSE_EXEC_FULL} showFrom={14.8} showTo={20.0} />
-      {/* AI 분석 코멘트 스포트라이트 (20~24s) — 인건비 시뮬레이션 화면 하단 */}
-      <Spotlight x={0.10} y={0.68} width={0.80} height={0.18} from={20.0} to={23.8} />
       <Subtitle cues={CUES} fontSize={34} bottom={70} />
     </SceneFrame>
   );
