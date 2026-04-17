@@ -20,7 +20,7 @@ const PHASES = {
   EXECUTIVE:  { start: 13.5, end: 24.5 }, // 정적 이미지
   HR_HEAD_1:  { start: 24.5, end: 36.8, video: "videos/ilji-demo.webm",     videoStartFrom: 90  },
   HR_HEAD_2:  { start: 36.8, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 390 },
-  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 870 },
+  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 1080 }, // 36s — 사이트 자동슬라이드(HR TF 대체...) 피하기
 };
 
 const CUES: Cue[] = [
