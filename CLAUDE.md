@@ -114,7 +114,18 @@ Source/audio newer is **deliberately non-destructive** — the script refuses to
 
 When Claude assists with this project: if you edit any file under `src/`, always prompt the user to decide which sections need `--force` re-render. Do not assume silent `npm run render` captures the edit — it won't.
 
-**Tracked output files** — `.gitignore` allows only `out/sections/*.mp4` and `out/shemak.mp4` to be committed, so team members sync rendered artifacts via git. Each render cycle adds ~62 MB of binaries; consider Git LFS if history grows large.
+**Tracked output files** — `.gitignore` allows `out/sections/*.mp4`, `out/shemak.mp4` (symlink to latest timestamped), and `out/shemak_*.mp4` (timestamped final). 렌더 시 자동으로 이전 timestamp mp4는 삭제하고 최신 1개만 유지. Each render cycle adds ~30 MB of binaries; consider Git LFS if history grows large.
+
+**Render concurrency** — [remotion.config.ts](remotion.config.ts) sets concurrency to `min(8, cpus().length - 2)` based on benchmark (16코어 맥, 03 섹션 1650 frames):
+
+| Workers | Time | Speedup |
+|---|---|---|
+| 1 | 123s | 1.0x (baseline) |
+| 4 | 37s | 3.3x |
+| **8** | **27s** | **4.6x** ⭐ |
+| 16 | 29s | 4.2x (context-switching overhead) |
+
+병렬 섹션 렌더 (multiple sections concurrently)는 효과 없음 — Bundling I/O 경쟁이 병목. 섹션 단위 순차 + 섹션 내 워커 8개가 최적. 16코어 맥 8 workers, 4코어 윈도우 2 workers, 1코어 1 worker로 자동 적응.
 
 **Platform notes for T14 / non-Mac contributors**:
 - ffmpeg install: `choco install ffmpeg` (Windows), `sudo apt install ffmpeg` (Ubuntu), `brew install ffmpeg` (Mac).
