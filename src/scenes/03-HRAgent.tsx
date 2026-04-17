@@ -6,49 +6,56 @@ import { MouseCursor } from "../components/MouseCursor";
 import { Spotlight } from "../components/Spotlight";
 import { BRAND } from "../lib/brand";
 
-// 03 HR Agent (55s) — 풀스크린 대시보드 영상 + 핵심 자막 + 마우스/스포트라이트 효과
-// 사용자 피드백 매핑:
-//   EXECUTIVE: hr-agent-demo 7초부터 (사용자 지정)
-//   HR_HEAD:   ilji-demo 0초부터 (몰입유형 → AI 전략 → SIM)
-//   TEAM_LEAD: hr-agent-demo 23초부터 (사용자 지정 23~28초)
+// 03 HR Agent (55s) — 5개 dashboard 매칭 + 마우스/스포트라이트 효과
+// 사용자 합의 매핑:
+//   EXEC_1     14~17s     #1 조직현황         hr-agent 3s
+//   EXEC_2     17~24.5s   #2 인건비 시뮬레이션  hr-agent 13s  (+마우스+스포트라이트)
+//   HR_HEAD_1  24.5~36.8s #3 몰입유형 설명     ilji 3s
+//   HR_HEAD_2  36.8~47.5s #4 AI 최적 인상률    ilji 13s
+//   TEAM_LEAD  48~55s     #5 팀 현황 1on1     hr-agent 29s
 
 const PHASES = {
-  OPENER:    { start: 0.5,  end: 13.5 },
-  EXECUTIVE: { start: 13.5, end: 24.5, video: "videos/hr-agent-demo.webm", videoStartFrom: 210 }, // 7s
-  HR_HEAD:   { start: 24.5, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 0   },
-  TEAM_LEAD: { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 690 }, // 23s
+  OPENER:     { start: 0.5,  end: 13.5 },
+  EXEC_1:     { start: 13.5, end: 17.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 90  }, // 3s 조직현황
+  EXEC_2:     { start: 17.0, end: 24.5, video: "videos/hr-agent-demo.webm", videoStartFrom: 390 }, // 13s 인건비 시뮬레이션
+  HR_HEAD_1:  { start: 24.5, end: 36.8, video: "videos/ilji-demo.webm",     videoStartFrom: 90  }, // 3s 몰입유형
+  HR_HEAD_2:  { start: 36.8, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 390 }, // 13s AI 최적 인상률
+  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 870 }, // 29s 팀 현황 1on1
 };
 
-// 자막은 핵심 키워드만 (사용자 피드백: "모든 글씨 쓸 필요 없음")
 const CUES: Cue[] = [
-  { start: 14.0, end: 19.5, text: "인건비 시나리오 설계" },
-  { start: 19.8, end: 24.0, text: "보수적 · 균형 · 적극 — AI가 즉시 비교" },
-  { start: 24.9, end: 29.0, text: "기본급 인상률 최적 배분" },
-  { start: 29.3, end: 34.0, text: "몰입 유형 · 평가 · 스킬 · 시장 임금" },
-  { start: 34.5, end: 39.0, text: "AI가 자동 크롤링 · 종합 판단" },
-  { start: 39.5, end: 47.0, text: "안정 · 균형 · 성과 집중 — 개인별 시뮬레이션" },
+  { start: 14.0, end: 16.8, text: "인건비 시나리오 설계" },
+  { start: 17.2, end: 19.5, text: "보수적 · 균형 · 적극 — AI가 즉시 비교" },
+  { start: 19.8, end: 24.0, text: "3년 추이 + AI 분석 코멘트" },
+  { start: 24.9, end: 28.7, text: "기본급 인상률 최적 배분" },
+  { start: 29.3, end: 32.6, text: "몰입 유형 · 평가 · 스킬 · 시장 임금" },
+  { start: 33.0, end: 36.5, text: "AI가 자동 크롤링 · 종합 판단" },
+  { start: 37.4, end: 40.0, text: "안정 · 균형 · 성과 집중" },
+  { start: 40.4, end: 47.0, text: "조직 보상전략 · 개인별 시뮬레이션" },
   { start: 48.2, end: 53.9, text: "팀 현황 · 1:1 면담 · KPI 실시간 관리" },
 ];
 
-// 마우스 효과 (사용자 피드백 #2): 보수적/균형/적극으로 이동, 균형 클릭
-// 영상 좌표 (1920×1080 기준 정규화) — 13s 시점 인건비 시뮬레이션 카드 위치
+// 마우스 효과: 보수적 → 균형(클릭) → 적극 (EXEC_2 안)
+// 영상 좌표 (1920×1080 정규화) — 인건비 시뮬레이션 카드 위치
 const MOUSE_EXEC = [
-  { t: 17.0, x: 0.20, y: 0.30 },          // 보수적 운영
-  { t: 18.0, x: 0.50, y: 0.30, click: true }, // 균형 성장 (클릭)
-  { t: 19.0, x: 0.80, y: 0.30 },          // 적극 투자
+  { t: 17.3, x: 0.18, y: 0.30 },           // 보수적 운영
+  { t: 18.3, x: 0.50, y: 0.30, click: true }, // 균형 성장 (클릭)
+  { t: 19.3, x: 0.82, y: 0.30 },           // 적극 투자
 ];
 
 export const HRAgentScene: React.FC = () => {
   return (
     <SceneFrame audioSrc="audio/03-hr-agent.mp3" background={BRAND.colors.dark.bg}>
       <OpenerPhase />
-      <ExecutivePhase />
-      <HRHeadPhase />
+      <Exec1Phase />
+      <Exec2Phase />
+      <HRHead1Phase />
+      <HRHead2Phase />
       <TeamLeadPhase />
-      {/* 사용자 피드백 #2: 마우스 움직임 (17~19s) */}
-      <MouseCursor waypoints={MOUSE_EXEC} showFrom={16.8} showTo={19.5} />
-      {/* 사용자 피드백 #3: AI 분석 코멘트 스포트라이트 (20~24s) */}
-      <Spotlight x={0.10} y={0.62} width={0.80} height={0.18} from={20.0} to={23.8} />
+      {/* 마우스 움직임 (17.3~19.3s) — 보수적/균형/적극 카드 위 */}
+      <MouseCursor waypoints={MOUSE_EXEC} showFrom={17.0} showTo={19.6} />
+      {/* AI 분석 코멘트 스포트라이트 (20~24s) — 인건비 시뮬레이션 화면 하단 */}
+      <Spotlight x={0.10} y={0.68} width={0.80} height={0.18} from={20.0} to={23.8} />
       <Subtitle cues={CUES} fontSize={34} bottom={70} />
     </SceneFrame>
   );
@@ -60,7 +67,7 @@ const useTiming = () => {
   return { frame, fps };
 };
 
-// 피드백: phase 전환 시 화면 겹침 → fade transition 짧게 (6 frame = 0.2s)
+// phase 전환 빠르게 (cross-fade 0.2s)
 const usePhase = (phase: { start: number; end: number }) => {
   const { frame, fps } = useTiming();
   const start = phase.start * fps;
@@ -70,7 +77,7 @@ const usePhase = (phase: { start: number; end: number }) => {
   return { opacity: inP * outP, frame, fps, start, end };
 };
 
-// P1: Opener (영상 없음, 풀스크린 카드)
+// P1: Opener — 헤더 + 키워드 + 3 Agent 카드 (영상 없음, 화면 중앙 정렬)
 const OpenerPhase: React.FC = () => {
   const { opacity, frame, fps, start } = usePhase(PHASES.OPENER);
   const lf = frame - start;
@@ -84,7 +91,6 @@ const OpenerPhase: React.FC = () => {
   ];
 
   // narration 3.7~7.8s "AI가 스스로 판단하고, 추론하고, 복잡한 인사 문제를 풀어냅니다"
-  // 시각 키워드 3개 차례 등장 (붕 뜨는 시간 시각화)
   const KEYWORDS = [
     { label: "판단",   delay: 3.5 },
     { label: "추론",   delay: 5.0 },
@@ -95,7 +101,6 @@ const OpenerPhase: React.FC = () => {
     <AbsoluteFill style={{
       opacity,
       padding: "0 120px",
-      // 피드백: 헤더+키워드+카드를 화면 중앙에 묶어서 배치
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
@@ -111,11 +116,9 @@ const OpenerPhase: React.FC = () => {
         </div>
       </div>
 
-      {/* 시각 키워드: AI가 스스로 판단·추론·해결 */}
       <div style={{ display: "flex", justifyContent: "center", gap: 36 }}>
         {KEYWORDS.map((k, i) => {
           const r = spring({ frame: lf - k.delay * fps, fps, config: { damping: 18, stiffness: 130 } });
-          // 카드들 등장(8.2s)할 때 키워드는 fade out
           const fadeOut = interpolate(lf, [7.8 * fps, 8.2 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
           const colors = [BRAND.colors.accent, BRAND.colors.accentWarm, "#A78BFA"];
           return (
@@ -161,7 +164,6 @@ const OpenerPhase: React.FC = () => {
   );
 };
 
-// 영상 phase 공통
 const VideoPhase: React.FC<{ phase: { start: number; end: number; video: string; videoStartFrom: number } }> = ({ phase }) => {
   const { opacity } = usePhase(phase);
   return (
@@ -171,6 +173,8 @@ const VideoPhase: React.FC<{ phase: { start: number; end: number; video: string;
   );
 };
 
-const ExecutivePhase: React.FC = () => <VideoPhase phase={PHASES.EXECUTIVE} />;
-const HRHeadPhase: React.FC   = () => <VideoPhase phase={PHASES.HR_HEAD} />;
+const Exec1Phase: React.FC    = () => <VideoPhase phase={PHASES.EXEC_1} />;
+const Exec2Phase: React.FC    = () => <VideoPhase phase={PHASES.EXEC_2} />;
+const HRHead1Phase: React.FC  = () => <VideoPhase phase={PHASES.HR_HEAD_1} />;
+const HRHead2Phase: React.FC  = () => <VideoPhase phase={PHASES.HR_HEAD_2} />;
 const TeamLeadPhase: React.FC = () => <VideoPhase phase={PHASES.TEAM_LEAD} />;

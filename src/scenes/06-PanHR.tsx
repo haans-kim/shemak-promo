@@ -10,11 +10,14 @@ import { BRAND } from "../lib/brand";
 //   site-pan-workforce.webm: 워라밸 — 사이드바 클릭하며 서브메뉴 차례 노출
 //   site-pan-rna.webm:       /pan-hr/planning/rna 적정인력 시뮬레이션 (슬라이더 조작)
 
+// 사용자 피드백:
+//   - 2:44 BFM 흰색 → 신규 site-bfm-demo.webm (다크모드 강제 CSS inject)
+//   - 흰색 로딩 화면 건너뛰도록 startFrom 늘림
 const PHASES = {
   OPENER:    { start: 0.0,  end: 4.0  },
-  M3_SKILL:  { start: 4.0,  end: 14.0, video: "videos/site-pan-skills.webm",    videoStartFrom: 60  }, // 2s
-  M2_WORK:   { start: 14.0, end: 20.5, video: "videos/site-pan-workforce.webm", videoStartFrom: 60  }, // 2s
-  M1_PLAN:   { start: 20.5, end: 32.0, video: "videos/site-pan-rna.webm",       videoStartFrom: 60  }, // 2s
+  M3_SKILL:  { start: 4.0,  end: 14.0, video: "videos/site-bfm-demo.webm",      videoStartFrom: 150 }, // 신규 BFM 영상
+  M2_WORK:   { start: 14.0, end: 20.5, video: "videos/site-pan-workforce.webm", videoStartFrom: 150 },
+  M1_PLAN:   { start: 20.5, end: 32.0, video: "videos/site-pan-rna.webm",       videoStartFrom: 150 },
   M0_SYNTH:  { start: 32.0, end: 38.0 },
 };
 

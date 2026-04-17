@@ -12,17 +12,16 @@ import { BRAND } from "../lib/brand";
 //   site-optic-ba.webm:   RAG 기반 AI 가설 자동생성 PoC (설문+인사제도+보상)
 //   ※ optic-ons.webm 끝부분에 What-If 슬라이더 조작 포함
 
+// 사용자 피드백:
+//   - 1:38 흰색→검정 전환 → INTRO startFrom 60 → 150 (5s, 페이지 로딩 흰화면 건너뜀)
+//   - 2:28 What-If 시연 부족 → 신규 site-whatif-demo.webm (슬라이더 천천히 + 차트 변화)
 const PHASES = {
-  // INTRO/DIVERSE: ONS 화면 (Survey + 4가지 몰입 유형 + 다양한 의식 데이터)
-  INTRO:     { start: 0.3,  end: 9.0,  video: "videos/site-optic-ons.webm",  videoStartFrom: 60  },
-  DIVERSE:   { start: 9.0,  end: 17.0, video: "videos/site-optic-ons.webm",  videoStartFrom: 180 },
-  // DEVIATION: 메인 카드 그리드 (M&A 23.9%, 조직 리스크 18.8%) → DA 페이지
-  DEVIATION: { start: 17.0, end: 24.0, video: "videos/site-optic-view.webm", videoStartFrom: 90  },
-  DA_DETAIL: { start: 24.0, end: 29.0, video: "videos/site-optic-da.webm",   videoStartFrom: 120 },
-  // RAG: BA 페이지 (RAG 기반 AI 가설 자동생성 PoC)
-  RAG:       { start: 29.0, end: 42.5, video: "videos/site-optic-ba.webm",   videoStartFrom: 60  },
-  // WHATIF: ONS 영상 끝부분 (What-If 슬라이더 조작)
-  WHATIF:    { start: 42.5, end: 56.0, video: "videos/site-optic-ons.webm",  videoStartFrom: 540 },
+  INTRO:     { start: 0.3,  end: 9.0,  video: "videos/site-optic-ons.webm",  videoStartFrom: 150 },
+  DIVERSE:   { start: 9.0,  end: 17.0, video: "videos/site-optic-ons.webm",  videoStartFrom: 240 },
+  DEVIATION: { start: 17.0, end: 24.0, video: "videos/site-optic-view.webm", videoStartFrom: 150 },
+  DA_DETAIL: { start: 24.0, end: 29.0, video: "videos/site-optic-da.webm",   videoStartFrom: 150 },
+  RAG:       { start: 29.0, end: 42.5, video: "videos/site-optic-ba.webm",   videoStartFrom: 120 },
+  WHATIF:    { start: 42.5, end: 56.0, video: "videos/site-whatif-demo.webm", videoStartFrom: 90 }, // 신규
 };
 
 const CUES: Cue[] = [
