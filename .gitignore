@@ -5,6 +5,7 @@ node_modules/
 out/*
 !out/sections/
 !out/shemak.mp4
+!out/shemak_*.mp4
 output/
 *.tsbuildinfo
 *.log

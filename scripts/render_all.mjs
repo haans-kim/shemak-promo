@@ -13,7 +13,7 @@
 // 요구사항: ffmpeg (brew install ffmpeg / apt install ffmpeg / choco install ffmpeg)
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,7 +23,11 @@ const SRC_DIR = resolve(ROOT, "src");
 const AUDIO_DIR = resolve(ROOT, "public/audio");
 const OUT_DIR = resolve(ROOT, "out/sections");
 const CONCAT_LIST = resolve(ROOT, "out/concat.txt");
-const FINAL = resolve(ROOT, "out/shemak.mp4");
+const pad = (n) => String(n).padStart(2, "0");
+const _now = new Date();
+const TS = `${_now.getFullYear()}${pad(_now.getMonth() + 1)}${pad(_now.getDate())}_${pad(_now.getHours())}${pad(_now.getMinutes())}`;
+const FINAL = resolve(ROOT, `out/shemak_${TS}.mp4`);
+const LATEST = resolve(ROOT, "out/shemak.mp4");
 
 const sectionsSrc = readFileSync(SECTIONS_FILE, "utf8");
 const slugs = [...sectionsSrc.matchAll(/slug:\s*"([^"]+)"/g)].map((m) => m[1]);
@@ -155,7 +159,10 @@ function concatAll() {
     console.error(`  ffmpeg -f concat -safe 0 -i ${CONCAT_LIST} -c:v libx264 -c:a aac ${FINAL}`);
     process.exit(r.status ?? 1);
   }
+  if (existsSync(LATEST)) unlinkSync(LATEST);
+  symlinkSync(FINAL, LATEST);
   console.log(`[done]   ${FINAL}`);
+  console.log(`[latest] ${LATEST} → ${FINAL}`);
 }
 
 mkdirSync(OUT_DIR, { recursive: true });
