@@ -2,20 +2,25 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
+import { MouseCursor } from "../components/MouseCursor";
 import { BRAND } from "../lib/brand";
 
-// 06 Pan HR (38s) — 사용자 엑셀 매핑 기반
+// 06 Pan HR (38s) — v6: M3 SKILL을 3개 페이지로 분할 (transition 깜박임 제거)
 // 영상 매핑:
-//   site-pan-skills.webm:    스킬관리 메인 → matrix → browser 시퀀스 (3 페이지 차례)
-//   site-pan-workforce.webm: 워라밸 — 사이드바 클릭하며 서브메뉴 차례 노출
-//   site-pan-rna.webm:       /pan-hr/planning/rna 적정인력 시뮬레이션 (슬라이더 조작)
+//   bfm-skills.webm:  스킬관리 메인 (4s) — narration "첫째 스킬 관리"
+//   bfm-matrix.webm:  BFM 구조도 매트릭스 (4s) — narration "팀장 에이전트 IG DB"
+//   bfm-browser.webm: BFM 탐색 GENERIC JOBS (5s, zoom 0.85) — narration "BFM·OCA 조직 역량"
+//   site-pan-workforce.webm: 워라밸
+//   site-pan-rna.webm: 적정인력 시뮬레이션
 
 const PHASES = {
-  OPENER:    { start: 0.0,  end: 4.0  },
-  M3_SKILL:  { start: 4.0,  end: 14.0, video: "videos/site-pan-skills.webm",    videoStartFrom: 60  }, // 2s
-  M2_WORK:   { start: 14.0, end: 20.5, video: "videos/site-pan-workforce.webm", videoStartFrom: 60  }, // 2s
-  M1_PLAN:   { start: 20.5, end: 32.0, video: "videos/site-pan-rna.webm",       videoStartFrom: 60  }, // 2s
-  M0_SYNTH:  { start: 32.0, end: 38.0 },
+  OPENER:        { start: 0.0,  end: 4.0  },
+  M3_MAIN:       { start: 4.0,  end: 6.0,  video: "videos/bfm-skills.webm",         videoStartFrom: 0 },
+  M3_MATRIX:     { start: 6.0,  end: 10.0, video: "videos/bfm-matrix.webm",         videoStartFrom: 0 },
+  M3_BROWSER:    { start: 10.0, end: 14.0, video: "videos/bfm-browser.webm",        videoStartFrom: 0 },
+  M2_WORK:       { start: 14.0, end: 20.5, video: "videos/site-pan-workforce.webm", videoStartFrom: 150 },
+  M1_PLAN:       { start: 20.5, end: 32.0, video: "videos/site-pan-rna.webm",       videoStartFrom: 150 },
+  M0_SYNTH:      { start: 32.0, end: 38.0 },
 };
 
 const CUES: Cue[] = [
@@ -26,14 +31,30 @@ const CUES: Cue[] = [
   { start: 25.0, end: 30.0, text: "매출·자동화·퇴직 시나리오별 인력 예측" },
 ];
 
+// M3 SKILL 마우스 효과 (페이지 전환 시점에 클릭):
+//  - 5.5s 클릭: BFM 구조도 카드 (skills 메인 → matrix 전환 직전)
+//  - 9.5s 클릭: Direct 셀 (matrix → browser 전환 직전)
+const MOUSE_M3 = [
+  { t: 4.5, x: 0.30, y: 0.30 },              // 진입
+  { t: 5.5, x: 0.34, y: 0.32, click: true }, // BFM 구조도 클릭 → matrix 등장
+  { t: 6.5, x: 0.34, y: 0.32 },              // matrix 등장 후 머무름
+  { t: 9.0, x: 0.31, y: 0.43 },              // Direct 셀로 이동
+  { t: 9.8, x: 0.31, y: 0.43, click: true }, // Direct 셀 클릭 → browser 등장
+  { t: 11.0, x: 0.50, y: 0.40 },             // browser GENERIC JOBS 호버
+];
+
 export const PanHRScene: React.FC = () => {
   return (
     <SceneFrame audioSrc="audio/06-pan-hr.mp3" background={BRAND.colors.dark.bg}>
       <OpenerPhase />
-      <M3Phase />
+      <M3MainPhase />
+      <M3MatrixPhase />
+      <M3BrowserPhase />
       <M2Phase />
       <M1Phase />
       <M0Phase />
+      {/* M3 SKILL 마우스: BFM 구조도 클릭 → Direct 셀 클릭 → GENERIC JOBS 호버 */}
+      <MouseCursor waypoints={MOUSE_M3} showFrom={4.3} showTo={12.0} />
       <Subtitle cues={CUES} fontSize={34} bottom={70} />
     </SceneFrame>
   );
@@ -111,9 +132,11 @@ const VideoOnlyPhase: React.FC<{ phase: { start: number; end: number; video: str
   );
 };
 
-const M3Phase: React.FC = () => <VideoOnlyPhase phase={PHASES.M3_SKILL} />;
-const M2Phase: React.FC = () => <VideoOnlyPhase phase={PHASES.M2_WORK} />;
-const M1Phase: React.FC = () => <VideoOnlyPhase phase={PHASES.M1_PLAN} />;
+const M3MainPhase: React.FC    = () => <VideoOnlyPhase phase={PHASES.M3_MAIN} />;
+const M3MatrixPhase: React.FC  = () => <VideoOnlyPhase phase={PHASES.M3_MATRIX} />;
+const M3BrowserPhase: React.FC = () => <VideoOnlyPhase phase={PHASES.M3_BROWSER} />;
+const M2Phase: React.FC        = () => <VideoOnlyPhase phase={PHASES.M2_WORK} />;
+const M1Phase: React.FC        = () => <VideoOnlyPhase phase={PHASES.M1_PLAN} />;
 
 // P5: M0 종합 대시보드 (풀스크린 카드)
 const M0Phase: React.FC = () => {
