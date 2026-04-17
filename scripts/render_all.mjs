@@ -161,6 +161,14 @@ function concatAll() {
   }
   if (existsSync(LATEST)) unlinkSync(LATEST);
   symlinkSync(FINAL, LATEST);
+  // 이전 타임스탬프 mp4 정리 — 최종본 1개만 유지
+  const outDir = resolve(ROOT, "out");
+  for (const name of readdirSync(outDir)) {
+    if (/^shemak_\d{8}_\d{4}\.mp4$/.test(name) && resolve(outDir, name) !== FINAL) {
+      unlinkSync(resolve(outDir, name));
+      console.log(`[clean]  ${name}`);
+    }
+  }
   console.log(`[done]   ${FINAL}`);
   console.log(`[latest] ${LATEST} → ${FINAL}`);
 }
