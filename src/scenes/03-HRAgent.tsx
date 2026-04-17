@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
@@ -6,20 +6,21 @@ import { MouseCursor } from "../components/MouseCursor";
 import { Spotlight } from "../components/Spotlight";
 import { BRAND } from "../lib/brand";
 
-// 03 HR Agent (55s) — 사용자 v4 피드백:
-//   00:47에 인건비 시뮬레이션이 안 보임 → EXEC_1 (조직현황) 제거, 14s부터 바로 인건비 시뮬레이션
+// 03 HR Agent (55s) — 사용자 v5 피드백:
+//   EXECUTIVE: 영상 13s 한 프레임을 정적 이미지로 사용 (영상은 18초 이후 다른 화면으로 전환되어 잘못 보임)
+//   → exec-cost-sim.jpg 정지 + 마우스 효과 + 스포트라이트
 //
-//   EXECUTIVE  13.5~24.5s #2 인건비 시뮬레이션  hr-agent 13s  (+마우스+스포트라이트)
+//   EXECUTIVE  13.5~24.5s #2 인건비 시뮬레이션 (정적 이미지 + 마우스 + 스포트라이트)
 //   HR_HEAD_1  24.5~36.8s #3 몰입유형 설명     ilji 3s
 //   HR_HEAD_2  36.8~47.5s #4 AI 최적 인상률    ilji 13s
 //   TEAM_LEAD  48~55s     #5 팀 현황 1on1     hr-agent 29s
 
 const PHASES = {
   OPENER:     { start: 0.5,  end: 13.5 },
-  EXECUTIVE:  { start: 13.5, end: 24.5, video: "videos/hr-agent-demo.webm", videoStartFrom: 390 }, // 13s 인건비 시뮬레이션
-  HR_HEAD_1:  { start: 24.5, end: 36.8, video: "videos/ilji-demo.webm",     videoStartFrom: 90  }, // 3s 몰입유형
-  HR_HEAD_2:  { start: 36.8, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 390 }, // 13s AI 최적 인상률
-  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 870 }, // 29s 팀 현황 1on1
+  EXECUTIVE:  { start: 13.5, end: 24.5 }, // 정적 이미지
+  HR_HEAD_1:  { start: 24.5, end: 36.8, video: "videos/ilji-demo.webm",     videoStartFrom: 90  },
+  HR_HEAD_2:  { start: 36.8, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 390 },
+  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 870 },
 };
 
 const CUES: Cue[] = [
@@ -34,24 +35,25 @@ const CUES: Cue[] = [
   { start: 48.2, end: 53.9, text: "팀 현황 · 1:1 면담 · KPI 실시간 관리" },
 ];
 
-// 마우스 효과: 보수적 → 균형(클릭) → 적극 (EXECUTIVE 안)
-// 영상 좌표 (1920×1080 정규화) — 인건비 시뮬레이션 카드 위치
-const MOUSE_EXEC = [
-  { t: 17.5, x: 0.18, y: 0.30 },           // 보수적 운영
-  { t: 18.5, x: 0.50, y: 0.30, click: true }, // 균형 성장 (클릭)
-  { t: 19.5, x: 0.82, y: 0.30 },           // 적극 투자
+
+// EXECUTIVE 마우스 시간을 길게 — 보수→균형→적극 모두 훑어줌 (15~19s)
+const MOUSE_EXEC_FULL = [
+  { t: 15.0, x: 0.18, y: 0.30 },           // 보수적 운영 호버
+  { t: 16.5, x: 0.50, y: 0.30, click: true }, // 균형 성장 (클릭)
+  { t: 18.0, x: 0.82, y: 0.30 },           // 적극 투자 호버
+  { t: 19.5, x: 0.50, y: 0.30 },           // 균형 다시
 ];
 
 export const HRAgentScene: React.FC = () => {
   return (
     <SceneFrame audioSrc="audio/03-hr-agent.mp3" background={BRAND.colors.dark.bg}>
       <OpenerPhase />
-      <ExecutivePhase />
+      <ExecutiveStaticPhase />
       <HRHead1Phase />
       <HRHead2Phase />
       <TeamLeadPhase />
-      {/* 마우스 움직임 (17.5~19.5s) — 보수적/균형/적극 카드 위 */}
-      <MouseCursor waypoints={MOUSE_EXEC} showFrom={17.2} showTo={19.8} />
+      {/* 마우스 움직임 (15~19.5s) — 보수적·균형·적극 모두 훑어줌 */}
+      <MouseCursor waypoints={MOUSE_EXEC_FULL} showFrom={14.8} showTo={20.0} />
       {/* AI 분석 코멘트 스포트라이트 (20~24s) — 인건비 시뮬레이션 화면 하단 */}
       <Spotlight x={0.10} y={0.68} width={0.80} height={0.18} from={20.0} to={23.8} />
       <Subtitle cues={CUES} fontSize={34} bottom={70} />
@@ -171,7 +173,16 @@ const VideoPhase: React.FC<{ phase: { start: number; end: number; video: string;
   );
 };
 
-const ExecutivePhase: React.FC = () => <VideoPhase phase={PHASES.EXECUTIVE} />;
+// EXECUTIVE — 정적 이미지 (영상 13s 한 프레임 — 인건비 시뮬레이션 화면 정지)
+const ExecutiveStaticPhase: React.FC = () => {
+  const { opacity } = usePhase(PHASES.EXECUTIVE);
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <Img src={staticFile("images/exec-cost-sim.jpg")} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+    </AbsoluteFill>
+  );
+};
+
 const HRHead1Phase: React.FC   = () => <VideoPhase phase={PHASES.HR_HEAD_1} />;
 const HRHead2Phase: React.FC   = () => <VideoPhase phase={PHASES.HR_HEAD_2} />;
 const TeamLeadPhase: React.FC  = () => <VideoPhase phase={PHASES.TEAM_LEAD} />;

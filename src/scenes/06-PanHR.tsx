@@ -2,6 +2,7 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
+import { MouseCursor } from "../components/MouseCursor";
 import { BRAND } from "../lib/brand";
 
 // 06 Pan HR (38s) — 사용자 엑셀 매핑 기반
@@ -29,6 +30,17 @@ const CUES: Cue[] = [
   { start: 25.0, end: 30.0, text: "매출·자동화·퇴직 시나리오별 인력 예측" },
 ];
 
+// M3 SKILL 마우스 효과:
+//  - 5s 호버 + 5.8s 클릭: BFM 구조도 카드 (skills 메인, 좌측 상단 첫 카드)
+//  - 9s 호버 + 9.8s 클릭: Direct 셀 (matrix 페이지, IT/디지털 × Direct 첫 셀)
+const MOUSE_M3 = [
+  { t: 4.5, x: 0.30, y: 0.30 },             // 진입 (BFM 구조도 카드 근처)
+  { t: 5.8, x: 0.34, y: 0.32, click: true }, // BFM 구조도 클릭
+  { t: 7.5, x: 0.34, y: 0.32 },             // 머무름 (matrix 페이지 로딩)
+  { t: 9.0, x: 0.31, y: 0.43 },             // Direct 셀로 이동
+  { t: 10.0, x: 0.31, y: 0.43, click: true }, // Direct 셀 클릭
+];
+
 export const PanHRScene: React.FC = () => {
   return (
     <SceneFrame audioSrc="audio/06-pan-hr.mp3" background={BRAND.colors.dark.bg}>
@@ -37,6 +49,8 @@ export const PanHRScene: React.FC = () => {
       <M2Phase />
       <M1Phase />
       <M0Phase />
+      {/* M3 SKILL 마우스: BFM 구조도 클릭 → Direct 셀 클릭 */}
+      <MouseCursor waypoints={MOUSE_M3} showFrom={4.3} showTo={11.0} />
       <Subtitle cues={CUES} fontSize={34} bottom={70} />
     </SceneFrame>
   );

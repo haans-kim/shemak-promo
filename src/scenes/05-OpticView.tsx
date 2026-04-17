@@ -18,7 +18,7 @@ import { BRAND } from "../lib/brand";
 const PHASES = {
   INTRO:     { start: 0.3,  end: 9.0,  video: "videos/site-optic-ons.webm",  videoStartFrom: 150 },
   DIVERSE:   { start: 9.0,  end: 17.0, video: "videos/site-optic-ons.webm",  videoStartFrom: 240 },
-  DEVIATION: { start: 17.0, end: 24.0, video: "videos/site-optic-view.webm", videoStartFrom: 150 },
+  DEVIATION: { start: 17.0, end: 24.0, video: "videos/optic-overview.webm", videoStartFrom: 90 },
   DA_DETAIL: { start: 24.0, end: 29.0, video: "videos/site-optic-da.webm",   videoStartFrom: 150 },
   RAG:       { start: 29.0, end: 42.5, video: "videos/site-optic-ba.webm",   videoStartFrom: 120 },
   WHATIF:    { start: 42.5, end: 56.0, video: "videos/site-whatif-demo.webm", videoStartFrom: 90 }, // 신규
