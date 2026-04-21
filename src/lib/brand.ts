@@ -1,23 +1,32 @@
-// IG 브랜드 토큰. 인싸이트그룹 사인규정(Logo/insightgroup 사인규정.ai)에서 추출 예정.
-// TODO: 실제 브랜드 HEX·폰트명 확정되면 PLACEHOLDER 값 교체.
-// 2026-04 업데이트: 피드백 반영으로 다크 모드 통일 (paper 속성은 유지하되 기본 테마를 dark로).
+// IG 브랜드 토큰.
+// 2026-04-21: 라이트모드 통일 (사용자 결정). dark 토큰은 폐기, light 기본.
 
 export const BRAND = {
   colors: {
-    primary: "#0A2540",     // 딥 네이비 (섹션 기본 배경)
-    primaryDark: "#050E1A", // 더 어두운 네이비
-    accent: "#2EB5E5",      // 시안 / CTA
-    accentWarm: "#FBBF24",  // 앰버 (강조용)
-    ink: "#0B0B0B",         // 라이트 모드 텍스트
+    primary: "#1E40AF",     // 딥 블루 (섹션 포인트 컬러)
+    primaryDark: "#0A2540",
+    accent: "#2EB5E5",      // 시안
+    accentWarm: "#F59E0B",  // 앰버 (강조·외양간)
+    ink: "#0B0B0B",
     paper: "#FFFFFF",
-    // 다크 모드 토큰
+    // 라이트 모드 토큰 (기본)
+    light: {
+      bg: "#FFFFFF",          // 메인 배경 흰색
+      bgSoft: "#F9FAFB",      // 약한 그레이
+      bgElevated: "#F3F4F6",  // 카드/패널
+      border: "#E5E7EB",
+      text: "#111827",
+      textMuted: "#4B5563",
+      textSubtle: "#9CA3AF",
+    },
+    // 다크 모드 토큰 (기존 호환용 — 새 작업에서는 light 사용)
     dark: {
-      bg: "#0A1628",        // 메인 배경
-      bgElevated: "#13243E",// 카드/패널
-      border: "#1F3555",
-      text: "#FFFFFF",
-      textMuted: "rgba(255,255,255,0.65)",
-      textSubtle: "rgba(255,255,255,0.42)",
+      bg: "#FFFFFF",          // ← 라이트모드 강제: 기존 씬 수정 최소화 위해 dark.bg도 흰색으로 alias
+      bgElevated: "#F3F4F6",
+      border: "#E5E7EB",
+      text: "#111827",
+      textMuted: "#4B5563",
+      textSubtle: "#9CA3AF",
     },
     muted: "#6B7280",
   },

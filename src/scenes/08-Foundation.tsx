@@ -3,21 +3,20 @@ import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
-// 피드백 반영 (Q2 = A):
-// 02-IGIntro에서 숫자 빼고, 클로징 직전 이 장면에서 임팩트 있게 배치.
-// "이 모든 기능의 기반" 메시지 + 카운트업 4종 + "쉐막의 AI를 만듭니다" 클로저.
+// 08 Foundation (20.11s) — 2026-04-21 최종
+// "이 많은 AI 모듈들 기반에는, 인싸이트 그룹 20년 컨설팅 결과" + 숫자 4종 + "외양간을 만듭니다"
+// 피드백 #15: 숫자 자릿수 변경 시 정렬 틀어지는 문제 — 고정폭 적용
 
-// 음성 분석 기반: "기반에는 20년" 0~3.09 / 숫자 4개 3.70~11.43 / "쉐막의 AI" 12.07~14.39
 const HEAD_AT = 0.3;
-const CARDS_START = 3.7;
-const CARDS_SPACING = 1.95; // 4카드 × 1.95s = 7.8s (음성 7.7s 커버)
-const CLOSER_AT = 12.0;
+const CARDS_START = 4.0;
+const CARDS_SPACING = 2.5;   // 4카드 × 2.5s = 10s
+const CLOSER_AT = 15.5;
 
 const STATS = [
-  { caption: "누적 컨설팅",        value: 1084,  suffix: "회",     countDur: 1.1 },
-  { caption: "조직 진단 데이터",    value: 100,   suffix: "만+ 명", countDur: 0.9 },
+  { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.1 },
+  { caption: "의식 설문 분석",      value: 100,   suffix: "만+ 명", countDur: 0.9 },
   { caption: "HR 데이터베이스",    value: 2400,  suffix: "만 건",  countDur: 1.2 },
-  { caption: "AI 특허",           value: 3,     suffix: "건",     countDur: 0.7 },
+  { caption: "AI 특허 출원",       value: 3,     suffix: "건",     countDur: 0.7 },
 ];
 
 export const FoundationScene: React.FC = () => {
@@ -41,7 +40,7 @@ const Background: React.FC = () => (
   <div style={{
     position: "absolute",
     inset: 0,
-    background: `radial-gradient(ellipse at center, ${BRAND.colors.primary} 0%, ${BRAND.colors.dark.bg} 70%)`,
+    background: `radial-gradient(ellipse at center, ${BRAND.colors.light.bgSoft} 0%, ${BRAND.colors.light.bg} 70%)`,
   }}/>
 );
 
@@ -64,11 +63,11 @@ const Headline: React.FC = () => {
       <div style={{ fontSize: 24, color: BRAND.colors.accent, letterSpacing: 4, fontWeight: 600, marginBottom: 14 }}>
         FOUNDATION
       </div>
-      <div style={{ fontSize: 54, fontWeight: 800, color: BRAND.colors.dark.text, lineHeight: 1.3, letterSpacing: -1 }}>
-        이 모든 기능의 <span style={{ color: BRAND.colors.accentWarm }}>기반</span>에는,
+      <div style={{ fontSize: 50, fontWeight: 800, color: BRAND.colors.dark.text, lineHeight: 1.3, letterSpacing: -1 }}>
+        이 많은 <span style={{ color: BRAND.colors.primary }}>AI 모듈</span>들 <span style={{ color: BRAND.colors.accentWarm }}>기반</span>에는,
       </div>
-      <div style={{ fontSize: 32, color: BRAND.colors.dark.textMuted, marginTop: 14 }}>
-        20년의 컨설팅 기록이 있습니다.
+      <div style={{ fontSize: 30, color: BRAND.colors.dark.textMuted, marginTop: 14 }}>
+        인싸이트 그룹 20년 컨설팅 결과가 있습니다.
       </div>
     </div>
   );
@@ -129,7 +128,14 @@ const StatCard: React.FC<StatProps> = ({ caption, value, suffix, countDur, start
         {caption}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-        <div style={{ fontSize: 100, fontWeight: 800, color: BRAND.colors.accent, letterSpacing: -3, lineHeight: 1 }}>
+        {/* 피드백 #15: 자릿수 변경 시 정렬 틀어짐 → 최종값 자릿수 기준 고정폭(tabular-nums + minWidth) */}
+        <div style={{
+          fontSize: 100, fontWeight: 800, color: BRAND.colors.primary,
+          letterSpacing: -3, lineHeight: 1,
+          fontVariantNumeric: "tabular-nums",
+          minWidth: `${String(value).length * 60}px`,
+          textAlign: "right",
+        }}>
           <CountUp from={0} to={value} durationInSeconds={countDur} startAtSeconds={startAt} />
         </div>
         <div style={{ fontSize: 36, color: BRAND.colors.dark.text, fontWeight: 500 }}>{suffix}</div>
@@ -154,14 +160,14 @@ const Closer: React.FC = () => {
       transform: `translateY(${translateY}px)`,
     }}>
       <div style={{
-        fontSize: 64,
+        fontSize: 54,
         fontWeight: 800,
         color: BRAND.colors.dark.text,
         textAlign: "center",
         lineHeight: 1.3,
       }}>
-        이 데이터가, <br />
-        <span style={{ color: BRAND.colors.accent }}>쉐막의 AI를 만듭니다.</span>
+        이 데이터들이 <span style={{ color: BRAND.colors.primary }}>HR AI 쉐막</span>,<br />
+        <span style={{ color: BRAND.colors.accentWarm }}>외양간</span>을 만듭니다.
       </div>
     </div>
   );
