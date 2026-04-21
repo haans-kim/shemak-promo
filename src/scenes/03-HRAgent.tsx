@@ -1,72 +1,46 @@
-import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
-import { MouseCursor } from "../components/MouseCursor";
 import { BRAND } from "../lib/brand";
 
-// 03 HR Agent (55s) — 사용자 v5 피드백:
-//   EXECUTIVE: 영상 13s 한 프레임을 정적 이미지로 사용 (영상은 18초 이후 다른 화면으로 전환되어 잘못 보임)
-//   → exec-cost-sim.jpg 정지 + 마우스 효과
-//
-//   EXECUTIVE  13.5~24.5s #2 인건비 시뮬레이션 (정적 이미지 + 마우스)
-//   HR_HEAD_1  24.5~36.8s #3 몰입유형 설명     ilji 3s
-//   HR_HEAD_2  36.8~47.5s #4 AI 최적 인상률    ilji 13s
-//   TEAM_LEAD  48~55s     #5 팀 현황 1on1     hr-agent 29s
+// 03 HR Agent (47.05s) — 2026-04-21 최종본
+// 0~6.5s   OPENER (판단·추론·해결 + 3 에이전트 카드)
+// 6.5~18s  CEO 경영진 — phase13_ceo_overview (전사 목표 KPI)
+// 18~35s   HR 임원 — phase16_ilji_simulation (최적 인상률 → Simulation)
+// 35~47s   팀장 — phase17_team_skill
 
 const PHASES = {
-  OPENER:     { start: 0.5,  end: 13.5 },
-  EXECUTIVE:  { start: 13.5, end: 24.5 }, // 정적 이미지
-  HR_HEAD_1:  { start: 24.5, end: 36.8, video: "videos/ilji-demo.webm",     videoStartFrom: 90  },
-  HR_HEAD_2:  { start: 36.8, end: 47.5, video: "videos/ilji-demo.webm",     videoStartFrom: 390 },
-  TEAM_LEAD:  { start: 47.5, end: 55.0, video: "videos/hr-agent-demo.webm", videoStartFrom: 1080 }, // 36s — 사이트 자동슬라이드(HR TF 대체...) 피하기
+  OPENER:    { start: 0.2,  end: 6.5 },
+  CEO_VIEW:  { start: 6.5,  end: 18.0, video: "videos/phase13_ceo_overview.webm", videoStartFrom: 0 },
+  HR_HEAD:   { start: 18.0, end: 35.0, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },
+  TEAM_LEAD: { start: 35.0, end: 47.05, video: "videos/phase17_team_skill.webm", videoStartFrom: 0 },
 };
 
 const CUES: Cue[] = [
-  { start: 14.0, end: 17.0, text: "인건비 시나리오 설계" },
-  { start: 17.5, end: 19.5, text: "보수적 · 균형 · 적극 — AI가 즉시 비교" },
-  { start: 19.8, end: 24.0, text: "3년 추이 + AI 분석 코멘트" },
-  { start: 24.9, end: 28.7, text: "기본급 인상률 최적 배분" },
-  { start: 29.3, end: 32.6, text: "몰입 유형 · 평가 · 스킬 · 시장 임금" },
-  { start: 33.0, end: 36.5, text: "AI가 자동 크롤링 · 종합 판단" },
-  { start: 37.4, end: 40.0, text: "안정 · 균형 · 성과 집중" },
-  { start: 40.4, end: 47.0, text: "조직 보상전략 · 개인별 시뮬레이션" },
-  { start: 48.2, end: 53.9, text: "팀 현황 · 1:1 면담 · KPI 실시간 관리" },
-];
-
-
-// EXECUTIVE 마우스 시간을 길게 — 보수→균형→적극 모두 훑어줌 (15~19s)
-const MOUSE_EXEC_FULL = [
-  { t: 15.0, x: 0.18, y: 0.30 },           // 보수적 운영 호버
-  { t: 16.5, x: 0.50, y: 0.30, click: true }, // 균형 성장 (클릭)
-  { t: 18.0, x: 0.82, y: 0.30 },           // 적극 투자 호버
-  { t: 19.5, x: 0.50, y: 0.30 },           // 균형 다시
+  { start: 0.3,  end: 5.5,  text: "판단 · 추론 · 해결" },
+  { start: 7.0,  end: 12.0, text: "경영진 AI — 전사 목표·KPI 모니터링" },
+  { start: 12.5, end: 17.5, text: "연말 실적 추정 → 수정해야 할 과제 제시" },
+  { start: 18.5, end: 23.5, text: "HR 임원 AI — 보상 인상률 최적 배분" },
+  { start: 24.0, end: 30.0, text: "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
+  { start: 35.5, end: 45.5, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
 ];
 
 export const HRAgentScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/03-hr-agent.mp3" background={BRAND.colors.dark.bg}>
+    <SceneFrame audioSrc="audio/03-hr-agent.mp3" background={BRAND.colors.light.bg}>
       <OpenerPhase />
-      <ExecutiveStaticPhase />
-      <HRHead1Phase />
-      <HRHead2Phase />
+      <CEOPhase />
+      <HRHeadPhase />
       <TeamLeadPhase />
-      {/* 마우스 움직임 (15~19.5s) — 보수적·균형·적극 모두 훑어줌 */}
-      <MouseCursor waypoints={MOUSE_EXEC_FULL} showFrom={14.8} showTo={20.0} />
-      <Subtitle cues={CUES} fontSize={34} bottom={70} />
+      <Subtitle cues={CUES} fontSize={32} bottom={70} />
     </SceneFrame>
   );
 };
 
-const useTiming = () => {
+const usePhase = (phase: { start: number; end: number }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  return { frame, fps };
-};
-
-// phase 전환 빠르게 (cross-fade 0.2s)
-const usePhase = (phase: { start: number; end: number }) => {
-  const { frame, fps } = useTiming();
   const start = phase.start * fps;
   const end = phase.end * fps;
   const inP = interpolate(frame, [start, start + 6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -74,85 +48,66 @@ const usePhase = (phase: { start: number; end: number }) => {
   return { opacity: inP * outP, frame, fps, start, end };
 };
 
-// P1: Opener — 헤더 + 키워드 + 3 Agent 카드 (영상 없음, 화면 중앙 정렬)
+// ─── P1 OPENER: 키워드 + 3 에이전트 카드 ───
 const OpenerPhase: React.FC = () => {
   const { opacity, frame, fps, start } = usePhase(PHASES.OPENER);
   const lf = frame - start;
   const title = spring({ frame: lf, fps, config: { damping: 20, stiffness: 110 } });
-  const cardDelays = [8.2, 8.7, 9.2];
-
-  const AGENTS = [
-    { role: "경영진",   color: BRAND.colors.accent,     focus: "전사 인건비 시나리오" },
-    { role: "HR 임원", color: BRAND.colors.accentWarm, focus: "기본급 최적 배분" },
-    { role: "팀장",    color: "#A78BFA",                focus: "팀 현황 · 1:1 · KPI" },
-  ];
-
-  // narration 3.7~7.8s "AI가 스스로 판단하고, 추론하고, 복잡한 인사 문제를 풀어냅니다"
   const KEYWORDS = [
-    { label: "판단",   delay: 3.5 },
-    { label: "추론",   delay: 5.0 },
-    { label: "해결",   delay: 6.5 },
+    { label: "판단", delay: 0.5 },
+    { label: "추론", delay: 1.3 },
+    { label: "해결", delay: 2.1 },
   ];
-
+  const AGENTS = [
+    { role: "경영진",   focus: "전사 목표·KPI",     color: BRAND.colors.primary,    delay: 3.5 },
+    { role: "HR 임원",  focus: "보상 인상률 배분",  color: BRAND.colors.accent,     delay: 4.0 },
+    { role: "팀장",     focus: "1:1 면담 · KPI",    color: BRAND.colors.accentWarm, delay: 4.5 },
+  ];
   return (
     <AbsoluteFill style={{
-      opacity,
-      padding: "0 120px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "stretch",
-      gap: 40,
+      opacity, padding: "80px 120px",
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      alignItems: "stretch", gap: 50,
     }}>
       <div style={{ textAlign: "center", opacity: title, transform: `translateY(${interpolate(title, [0, 1], [18, 0])}px)` }}>
-        <div style={{ fontSize: 22, color: BRAND.colors.accent, letterSpacing: 4, fontWeight: 600, marginBottom: 12 }}>
+        <div style={{ fontSize: 22, color: BRAND.colors.primary, letterSpacing: 4, fontWeight: 600, marginBottom: 12 }}>
           HR AGENT
         </div>
-        <div style={{ fontSize: 56, fontWeight: 800, color: BRAND.colors.dark.text, letterSpacing: -1, lineHeight: 1.25 }}>
-          쉐막의 중심, <span style={{ color: BRAND.colors.accentWarm }}>HR Agent</span>
+        <div style={{ fontSize: 52, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1, lineHeight: 1.25 }}>
+          복잡한 인사 문제를 <span style={{ color: BRAND.colors.accentWarm }}>AI 에이전트</span>가 풀어냅니다
         </div>
       </div>
-
       <div style={{ display: "flex", justifyContent: "center", gap: 36 }}>
         {KEYWORDS.map((k, i) => {
           const r = spring({ frame: lf - k.delay * fps, fps, config: { damping: 18, stiffness: 130 } });
-          const fadeOut = interpolate(lf, [7.8 * fps, 8.2 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-          const colors = [BRAND.colors.accent, BRAND.colors.accentWarm, "#A78BFA"];
+          const colors = [BRAND.colors.primary, BRAND.colors.accent, BRAND.colors.accentWarm];
           return (
             <div key={k.label} style={{
-              padding: "16px 36px",
+              padding: "16px 40px",
               background: `${colors[i]}18`,
               border: `2px solid ${colors[i]}`,
-              borderRadius: 12,
-              fontSize: 30,
-              fontWeight: 800,
-              color: colors[i],
-              letterSpacing: 1,
-              opacity: r * fadeOut,
+              borderRadius: 14,
+              fontSize: 32, fontWeight: 800, color: colors[i], letterSpacing: 1,
+              opacity: r,
               transform: `translateY(${interpolate(r, [0, 1], [20, 0])}px) scale(${interpolate(r, [0, 1], [0.85, 1])})`,
-            }}>
-              {k.label}
-            </div>
+            }}>{k.label}</div>
           );
         })}
       </div>
-
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24 }}>
-        {AGENTS.map((a, i) => {
-          const reveal = spring({ frame: lf - cardDelays[i] * fps, fps, config: { damping: 20, stiffness: 100 } });
+        {AGENTS.map((a) => {
+          const r = spring({ frame: lf - a.delay * fps, fps, config: { damping: 20, stiffness: 100 } });
           return (
             <div key={a.role} style={{
               padding: "30px 24px",
-              background: "rgba(255,255,255,0.04)",
+              background: BRAND.colors.light.bgSoft,
               border: `2px solid ${a.color}`,
-              borderRadius: 16,
-              textAlign: "center",
-              opacity: reveal,
-              transform: `translateY(${interpolate(reveal, [0, 1], [30, 0])}px)`,
+              borderRadius: 16, textAlign: "center",
+              opacity: r,
+              transform: `translateY(${interpolate(r, [0, 1], [30, 0])}px)`,
             }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: a.color, marginBottom: 14 }}>{a.role}</div>
-              <div style={{ fontSize: 16, color: BRAND.colors.dark.textMuted, lineHeight: 1.5 }}>{a.focus}</div>
-              <div style={{ fontSize: 11, color: a.color, marginTop: 16, letterSpacing: 3, fontWeight: 600 }}>AI AGENT</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: a.color, marginBottom: 10 }}>{a.role}</div>
+              <div style={{ fontSize: 16, color: BRAND.colors.light.textMuted, lineHeight: 1.5 }}>{a.focus}</div>
             </div>
           );
         })}
@@ -170,16 +125,6 @@ const VideoPhase: React.FC<{ phase: { start: number; end: number; video: string;
   );
 };
 
-// EXECUTIVE — 정적 이미지 (영상 13s 한 프레임 — 인건비 시뮬레이션 화면 정지)
-const ExecutiveStaticPhase: React.FC = () => {
-  const { opacity } = usePhase(PHASES.EXECUTIVE);
-  return (
-    <AbsoluteFill style={{ opacity }}>
-      <Img src={staticFile("images/exec-cost-sim.jpg")} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-    </AbsoluteFill>
-  );
-};
-
-const HRHead1Phase: React.FC   = () => <VideoPhase phase={PHASES.HR_HEAD_1} />;
-const HRHead2Phase: React.FC   = () => <VideoPhase phase={PHASES.HR_HEAD_2} />;
-const TeamLeadPhase: React.FC  = () => <VideoPhase phase={PHASES.TEAM_LEAD} />;
+const CEOPhase: React.FC     = () => <VideoPhase phase={PHASES.CEO_VIEW} />;
+const HRHeadPhase: React.FC  = () => <VideoPhase phase={PHASES.HR_HEAD} />;
+const TeamLeadPhase: React.FC = () => <VideoPhase phase={PHASES.TEAM_LEAD} />;

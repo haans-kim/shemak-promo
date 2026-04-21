@@ -6,7 +6,6 @@ import { HRAgentScene } from "./scenes/03-HRAgent";
 import { BridgeScene } from "./scenes/04-Bridge";
 import { OpticViewScene } from "./scenes/05-OpticView";
 import { PanHRScene } from "./scenes/06-PanHR";
-import { SynergyScene } from "./scenes/07-Synergy";
 import { FoundationScene } from "./scenes/08-Foundation";
 import { ClosingScene } from "./scenes/09-Closing";
 import { SECTIONS, secondsToFrames } from "./lib/sections";
@@ -19,7 +18,6 @@ const SECTION_COMPONENTS = {
   "04": BridgeScene,
   "05": OpticViewScene,
   "06": PanHRScene,
-  "07": SynergyScene,
   "08": FoundationScene,
   "09": ClosingScene,
 } as const;
