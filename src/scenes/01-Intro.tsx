@@ -11,11 +11,12 @@ import { BRAND } from "../lib/brand";
 // 19~22s "쉐막은 궁금증을 모니터링 하며 답을 제안합니다"
 // 23~31s 외양간 브랜드 스토리 (소 잃고 외양간 고치지 말자 / 미리 예측하자)
 
-const Q_START = [0.5, 4.5, 8.5];
-const SURVEY_AT = 12.5;
-const QUESTION_AT = 15.5;
-const MONITOR_AT = 19.0;
-const BARN_AT = 22.5;
+// 피드백 v8 반영: 질문 타이밍 slowdown (00:22 말보다 화면 빠름)
+const Q_START = [0.8, 5.0, 9.2];
+const SURVEY_AT = 13.0;
+const QUESTION_AT = 16.0;
+const MONITOR_AT = 19.5;
+const BARN_AT = 23.0;
 
 const QUESTIONS = [
   "요즘 같은 때 우리 회사 보상 수준은 경쟁력 있나요?",
@@ -143,7 +144,7 @@ const MonitorPhase: React.FC = () => {
   );
 };
 
-// 외양간 브랜드 스토리 (소·외양간 아이콘 + 텍스트)
+// 외양간 브랜드 스토리 — 울타리 탁탁 + strike 애니메이션
 const BarnStoryPhase: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = BARN_AT * fps;
@@ -152,10 +153,16 @@ const BarnStoryPhase: React.FC = () => {
   const fadeOut = interpolate(frame, [31.5 * fps, 31.74 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
 
-  // 순차 등장
-  const barn = spring({ frame: lf, fps, config: { damping: 18, stiffness: 130 } });
-  const sub1 = spring({ frame: lf - 1.5 * fps, fps, config: { damping: 18, stiffness: 120 } });
-  const sub2 = spring({ frame: lf - 4.5 * fps, fps, config: { damping: 18, stiffness: 120 } });
+  // 외양간 소개 텍스트
+  const intro = spring({ frame: lf, fps, config: { damping: 18, stiffness: 130 } });
+  // 울타리 막대 6개 — 0.3초 간격 순차 드롭
+  const plankDelays = [0.8, 1.0, 1.2, 1.4, 1.6, 1.8];
+  // Strike 라인 — "소 잃고 외양간 고치지 말고" (left→right draw)
+  const strikeStart = lf - 3.5 * fps;
+  const strikeProgress = interpolate(strikeStart, [0, 1.2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 미리 예측 강조
+  const predictStart = lf - 5.5 * fps;
+  const predict = spring({ frame: predictStart, fps, config: { damping: 18, stiffness: 120 } });
 
   return (
     <div style={{
@@ -163,36 +170,73 @@ const BarnStoryPhase: React.FC = () => {
       display: "flex", alignItems: "center", justifyContent: "center",
       flexDirection: "column", gap: 24, opacity, padding: "0 140px", textAlign: "center",
     }}>
-      {/* 소·외양간 이모지 아이콘 */}
+      {/* 외양간 = 울타리 6개 + 소 이모지 */}
       <div style={{
-        fontSize: 140, lineHeight: 1,
-        opacity: barn,
-        transform: `scale(${interpolate(barn, [0, 1], [0.7, 1])})`,
+        position: "relative", width: 520, height: 160,
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
       }}>
-        🐄 🏠
+        {/* 소 이모지 */}
+        <div style={{
+          position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 10,
+          fontSize: 80, lineHeight: 1, opacity: intro,
+        }}>🐄</div>
+        {/* 6개 울타리 막대 */}
+        {plankDelays.map((d, i) => {
+          const drop = spring({ frame: lf - d * fps, fps, config: { damping: 12, stiffness: 220, mass: 0.6 } });
+          const x = 80 + i * 60;
+          return (
+            <div key={i} style={{
+              position: "absolute", left: x, bottom: 0, width: 16, height: 140,
+              background: `linear-gradient(180deg, ${BRAND.colors.accentWarm} 0%, #B45309 100%)`,
+              borderRadius: 4,
+              opacity: drop,
+              transform: `translateY(${interpolate(drop, [0, 1], [-200, 0])}px) rotate(${interpolate(drop, [0, 0.7, 1], [15, -5, 0])}deg)`,
+              boxShadow: `0 4px 8px rgba(0,0,0,0.2)`,
+            }}/>
+          );
+        })}
+        {/* 가로 막대 2개 (연결) */}
+        <div style={{
+          position: "absolute", left: 70, bottom: 100, width: 390, height: 12,
+          background: "#B45309", borderRadius: 3,
+          opacity: spring({ frame: lf - 2.1 * fps, fps, config: { damping: 14, stiffness: 180 } }),
+        }}/>
+        <div style={{
+          position: "absolute", left: 70, bottom: 40, width: 390, height: 12,
+          background: "#B45309", borderRadius: 3,
+          opacity: spring({ frame: lf - 2.3 * fps, fps, config: { damping: 14, stiffness: 180 } }),
+        }}/>
       </div>
-      {/* 메인 텍스트 "쉐막 = 외양간" */}
+      {/* 메인 텍스트 */}
       <div style={{
-        fontSize: 54, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1,
-        opacity: barn,
+        fontSize: 52, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1,
+        opacity: intro, marginTop: 12,
       }}>
         <span style={{ color: BRAND.colors.accentWarm }}>쉐막</span>은 "<span style={{ color: BRAND.colors.primary }}>외양간</span>"이라는 뜻
       </div>
-      {/* 서브 텍스트 1 */}
+      {/* "소 잃고 외양간 고치지 말고" — left→right strike 애니메이션 */}
       <div style={{
-        fontSize: 30, color: BRAND.colors.light.textMuted, fontWeight: 500,
-        opacity: sub1, transform: `translateY(${interpolate(sub1, [0, 1], [12, 0])}px)`,
+        position: "relative", display: "inline-block",
+        opacity: interpolate(lf, [3 * fps, 3.5 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
-        <span style={{ textDecoration: "line-through", textDecorationThickness: 2, color: BRAND.colors.light.textSubtle }}>
+        <div style={{
+          fontSize: 28, color: BRAND.colors.light.textSubtle, fontWeight: 500,
+        }}>
           소 잃고 외양간 고치지 말고
-        </span>
+        </div>
+        {/* 애니메이션 strike line — left→right 그려짐 */}
+        <div style={{
+          position: "absolute", left: 0, top: "50%", height: 3, background: "#DC2626",
+          width: `${strikeProgress * 100}%`,
+          boxShadow: "0 0 4px rgba(220,38,38,0.4)",
+        }}/>
       </div>
-      {/* 서브 텍스트 2 (강조) */}
+      {/* 미리 예측 (강조) */}
       <div style={{
-        fontSize: 40, fontWeight: 800, color: BRAND.colors.primary, letterSpacing: -0.5,
-        opacity: sub2, transform: `scale(${interpolate(sub2, [0, 1], [0.9, 1])})`,
+        fontSize: 44, fontWeight: 800, color: BRAND.colors.primary, letterSpacing: -0.5,
+        opacity: predict, transform: `scale(${interpolate(predict, [0, 1], [0.85, 1])})`,
       }}>
-        ✨ <span style={{ color: BRAND.colors.accentWarm }}>미리 예측</span>하자
+        <span style={{ color: BRAND.colors.accentWarm }}>미리 예측</span>하자
       </div>
     </div>
   );

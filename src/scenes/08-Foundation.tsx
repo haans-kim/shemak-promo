@@ -3,14 +3,15 @@ import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
-// 08 Foundation (20.11s) — 2026-04-21 최종
-// "이 많은 AI 모듈들 기반에는, 인싸이트 그룹 20년 컨설팅 결과" + 숫자 4종 + "외양간을 만듭니다"
-// 피드백 #15: 숫자 자릿수 변경 시 정렬 틀어지는 문제 — 고정폭 적용
+// 08 Foundation (20.11s) — v9 피드백 반영
+// 02:30: 헤드라인 상단 고정 → 숫자 나올 때 위로 올라가는 애니메이션
+// 02:33: CountUp sync 맞춤
+// 02:48: 외양간 callback (아이콘 + 불빛 + 숫자들 모여듦)
 
 const HEAD_AT = 0.3;
-const CARDS_START = 4.0;
-const CARDS_SPACING = 2.5;   // 4카드 × 2.5s = 10s
-const CLOSER_AT = 15.5;
+const CARDS_START = 4.5;       // sync 조정 (narration 맞춤)
+const CARDS_SPACING = 1.9;     // 간격 축소 (4×1.9 = 7.6s)
+const CLOSER_AT = 15.0;
 
 const STATS = [
   { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.1 },
@@ -51,16 +52,23 @@ const Headline: React.FC = () => {
   const closerStart = CLOSER_AT * fps;
   const fadeOut = interpolate(frame, [closerStart - 20, closerStart], [1, 0.2], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
+  // v9 피드백 02:30: 처음엔 중앙에 있다가 숫자 나올 때(CARDS_START) 위로 올라감
+  const moveUpStart = (CARDS_START - 0.5) * fps;
+  const moveUp = interpolate(frame, [moveUpStart, moveUpStart + 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // top: 중앙(400) → 상단(80)
+  const topPx = interpolate(moveUp, [0, 1], [360, 80]);
+  const fontScale = interpolate(moveUp, [0, 1], [1.15, 1]);
   return (
     <div style={{
       position: "absolute",
-      top: 100,
+      top: topPx,
       left: 0,
       right: 0,
       textAlign: "center",
       opacity,
+      transform: `scale(${fontScale})`,
     }}>
-      <div style={{ fontSize: 24, color: BRAND.colors.accent, letterSpacing: 4, fontWeight: 600, marginBottom: 14 }}>
+      <div style={{ fontSize: 24, color: BRAND.colors.primary, letterSpacing: 4, fontWeight: 600, marginBottom: 14 }}>
         FOUNDATION
       </div>
       <div style={{ fontSize: 50, fontWeight: 800, color: BRAND.colors.dark.text, lineHeight: 1.3, letterSpacing: -1 }}>
@@ -144,30 +152,81 @@ const StatCard: React.FC<StatProps> = ({ caption, value, suffix, countDur, start
   );
 };
 
+// v9 피드백 02:48: 외양간 callback 애니메이션 (A+B 결합)
+// - 외양간 이미지 + 안에 불빛 켜지는 효과
+// - 숫자들(4개)이 외양간으로 모여드는 궤적 애니메이션
 const Closer: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = CLOSER_AT * fps;
-  const reveal = spring({ frame: frame - start, fps, config: { damping: 20, stiffness: 100 } });
-  const translateY = interpolate(reveal, [0, 1], [30, 0]);
+  const lf = frame - start;
+  const reveal = spring({ frame: lf, fps, config: { damping: 20, stiffness: 100 } });
+  // 숫자들이 외양간으로 날아 들어오는 단계 (0~2s)
+  const convergence = interpolate(lf, [0, 2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 불빛 켜짐 (1.5~3s)
+  const glow = interpolate(lf, [1.5 * fps, 3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 텍스트 등장 (2s~)
+  const textReveal = spring({ frame: lf - 2 * fps, fps, config: { damping: 20, stiffness: 110 } });
+
+  // 4개 숫자의 출발점(이전 StatCard 위치 근사)과 외양간 중심(960, 540)
+  const targets = [
+    { x: 480,  y: 400 },  // 좌상
+    { x: 1440, y: 400 },  // 우상
+    { x: 480,  y: 680 },  // 좌하
+    { x: 1440, y: 680 },  // 우하
+  ];
+
   return (
-    <div style={{
-      position: "absolute",
-      inset: 0,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      opacity: reveal,
-      transform: `translateY(${translateY}px)`,
-    }}>
+    <div style={{ position: "absolute", inset: 0, opacity: reveal }}>
+      {/* 4개 숫자 dot이 외양간으로 날아들어감 */}
+      {targets.map((t, i) => {
+        const progress = Math.max(0, Math.min(1, (lf / fps - 0.2 * i) / 2));
+        const x = interpolate(progress, [0, 1], [t.x, 960]);
+        const y = interpolate(progress, [0, 1], [t.y, 540]);
+        const alpha = progress < 1 ? 1 : 0;
+        const colors = [BRAND.colors.primary, BRAND.colors.accent, BRAND.colors.accentWarm, "#A78BFA"];
+        return (
+          <div key={i} style={{
+            position: "absolute", left: x - 16, top: y - 16,
+            width: 32, height: 32, borderRadius: 16,
+            background: colors[i],
+            boxShadow: `0 0 20px ${colors[i]}`,
+            opacity: alpha * reveal,
+          }}/>
+        );
+      })}
+      {/* 외양간 아이콘 — 중앙 */}
       <div style={{
-        fontSize: 54,
-        fontWeight: 800,
-        color: BRAND.colors.dark.text,
-        textAlign: "center",
-        lineHeight: 1.3,
+        position: "absolute", left: "50%", top: "50%",
+        transform: `translate(-50%, -50%) scale(${interpolate(convergence, [0, 1], [0.6, 1])})`,
+        opacity: convergence, textAlign: "center",
       }}>
-        이 데이터들이 <span style={{ color: BRAND.colors.primary }}>HR AI 쉐막</span>,<br />
-        <span style={{ color: BRAND.colors.accentWarm }}>외양간</span>을 만듭니다.
+        <div style={{
+          fontSize: 180, lineHeight: 1,
+          // 불빛이 안에서 켜지는 효과 (glow)
+          filter: `drop-shadow(0 0 ${20 + glow * 40}px ${BRAND.colors.accentWarm}${Math.round(glow * 255).toString(16).padStart(2, "0")})`,
+        }}>
+          🏠
+        </div>
+        {/* 불빛 내부 파동 */}
+        <div style={{
+          position: "absolute", left: "50%", top: "50%",
+          transform: `translate(-50%, -50%) scale(${1 + glow * 0.8})`,
+          width: 80, height: 80, borderRadius: "50%",
+          background: `radial-gradient(circle, ${BRAND.colors.accentWarm}${Math.round(glow * 200).toString(16).padStart(2, "0")} 0%, transparent 60%)`,
+          pointerEvents: "none",
+        }}/>
+      </div>
+      {/* 하단 텍스트 */}
+      <div style={{
+        position: "absolute", left: 0, right: 0, bottom: 100,
+        textAlign: "center",
+        fontSize: 46, fontWeight: 800, color: BRAND.colors.dark.text,
+        lineHeight: 1.3,
+        opacity: textReveal,
+        transform: `translateY(${interpolate(textReveal, [0, 1], [20, 0])}px)`,
+      }}>
+        이 데이터들이 <span style={{ color: BRAND.colors.primary }}>HR AI 쉐막</span>,
+        <span style={{ color: BRAND.colors.accentWarm }}> 외양간</span>을 만듭니다.
       </div>
     </div>
   );

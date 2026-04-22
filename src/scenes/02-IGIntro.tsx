@@ -1,5 +1,6 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
+import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
 // 02 IGIntro (16.43s) — 2026-04-21 최종
@@ -61,8 +62,9 @@ const HistoryPhase: React.FC = () => {
       <div style={{ fontSize: 36, color: BRAND.colors.dark.textMuted, lineHeight: 1.6 }}>
         지난
       </div>
-      <div style={{ fontSize: 160, fontWeight: 800, color: BRAND.colors.accentWarm, letterSpacing: -4, lineHeight: 1 }}>
-        20년
+      <div style={{ fontSize: 160, fontWeight: 800, color: BRAND.colors.accentWarm, letterSpacing: -4, lineHeight: 1, display: "flex", alignItems: "baseline", gap: 8 }}>
+        <CountUp from={0} to={20} durationInSeconds={1.8} startAtSeconds={0.6} />
+        <span style={{ fontSize: 100, fontWeight: 700 }}>년</span>
       </div>
       <div style={{ fontSize: 32, color: BRAND.colors.dark.text, fontWeight: 500, lineHeight: 1.5 }}>
         인싸이트그룹은 HR을 <span style={{ color: BRAND.colors.primary, fontWeight: 700 }}>전문적으로 컨설팅</span>해 왔습니다.
@@ -81,10 +83,14 @@ const AIPhase: React.FC = () => {
   const fadeOut = interpolate(frame, [end - 5, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = ipReveal * fadeOut;
 
-  // 2단계: "AI 서비스를 더했습니다" — 음성 타이밍에 맞춰 등장
+  // 2단계: "AI 서비스를 더했습니다" — 쾅 효과 강화 (bounce + flash + scale)
   const impactStart = 9.0;
   const aiReveal = interpolate(frame, [impactStart * fps, impactStart * fps + 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const flashOpacity = interpolate(frame, [impactStart * fps, impactStart * fps + 4, impactStart * fps + 14], [0, 0.6, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 더 강한 flash (radial burst 2초 유지)
+  const flashOpacity = interpolate(frame, [impactStart * fps - 2, impactStart * fps + 5, impactStart * fps + 25], [0, 0.85, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Scale bounce: 0 → 1.25 → 1.0
+  const aiSpring = spring({ frame: frame - impactStart * fps, fps, config: { damping: 10, stiffness: 200, mass: 1 } });
+  const aiScale = interpolate(aiSpring, [0, 0.5, 1], [0.3, 1.25, 1]);
 
   return (
     <div style={{
@@ -98,17 +104,25 @@ const AIPhase: React.FC = () => {
       opacity,
       textAlign: "center",
     }}>
-      {/* flash burst */}
+      {/* flash burst (강화) */}
       <div style={{
         position: "absolute", inset: 0,
-        background: `radial-gradient(circle at center, ${BRAND.colors.accentWarm}AA 0%, transparent 50%)`,
+        background: `radial-gradient(circle at center, ${BRAND.colors.accentWarm}DD 0%, ${BRAND.colors.accentWarm}44 25%, transparent 55%)`,
         opacity: flashOpacity,
         pointerEvents: "none",
       }}/>
+      {/* 기존 솔루션 자막 (유지) */}
       <div style={{ fontSize: 36, color: BRAND.colors.dark.textMuted, lineHeight: 1.5 }}>
         다양한 컨설팅을 통해 확보한 <span style={{ color: BRAND.colors.primary, fontWeight: 700 }}>인싸이트그룹만의 솔루션</span> 위에,
       </div>
-      <div style={{ fontSize: 64, fontWeight: 800, color: BRAND.colors.dark.text, opacity: aiReveal }}>
+      {/* AI 서비스를 더했습니다 — 쾅 효과 (scale bounce + overlay) */}
+      <div style={{
+        fontSize: 96, fontWeight: 800, color: BRAND.colors.dark.text,
+        opacity: aiReveal,
+        transform: `scale(${aiScale})`,
+        textShadow: `0 0 40px ${BRAND.colors.accentWarm}88`,
+        letterSpacing: -2,
+      }}>
         <span style={{ color: BRAND.colors.accentWarm }}>AI 서비스</span>를 더했습니다.
       </div>
     </div>
