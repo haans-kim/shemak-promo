@@ -8,10 +8,12 @@ import { BRAND } from "../lib/brand";
 // 02:33: CountUp sync 맞춤
 // 02:48: 외양간 callback (아이콘 + 불빛 + 숫자들 모여듦)
 
+// v9.1 실제 TTS silence 기반 sync
+// silences: @7.89 (헤드라인 종료) / @12.92 (3개 숫자 종료) / @17.04 (마지막 숫자 종료)
 const HEAD_AT = 0.3;
-const CARDS_START = 4.5;       // sync 조정 (narration 맞춤)
-const CARDS_SPACING = 1.9;     // 간격 축소 (4×1.9 = 7.6s)
-const CLOSER_AT = 15.0;
+const CARDS_START = 8.3;       // was 4.5 — 헤드라인 나레이션 끝난 후 시작
+const CARDS_SPACING = 2.2;     // 4×2.2 = 8.8s (TTS 8~17s와 맞춤)
+const CLOSER_AT = 17.5;        // was 15 — "외양간을 만듭니다" 시점
 
 const STATS = [
   { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.1 },

@@ -3,13 +3,13 @@ import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
-// 02 IGIntro (16.43s) — 2026-04-21 최종
-// "지난 20년 ... HR을 전문적으로 컨설팅" / "컨설팅 솔루션 위에 AI 서비스" / "인싸이트그룹 HR AI 쉐막"
+// 02 IGIntro (16.43s) — v9.1 실제 TTS silence 기반 sync
+// silences: @9.50 (20년 설명 종료) / @11.91 (솔루션+AI 종료) / @14.97 (HR AI 종료)
 
 const IP_FRAME_AT = 0.0;
-const AI_AT = 5.5;
-const REVEAL_AT = 11.0;
-const SHEMAK_AT = 13.8;
+const AI_AT = 9.5;      // was 5.5 — "솔루션 위에 AI 서비스" narration 시작 시점
+const REVEAL_AT = 12.0; // was 11.0 — "인싸이트그룹이 만든 HR AI"
+const SHEMAK_AT = 14.5; // was 13.8 — "쉐막입니다"
 
 export const IGIntroScene: React.FC = () => {
   return (
@@ -83,8 +83,8 @@ const AIPhase: React.FC = () => {
   const fadeOut = interpolate(frame, [end - 5, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = ipReveal * fadeOut;
 
-  // 2단계: "AI 서비스를 더했습니다" — 쾅 효과 강화 (bounce + flash + scale)
-  const impactStart = 9.0;
+  // 2단계: "AI 서비스를 더했습니다" — 쾅 효과 (solution 자막 뜬 직후 임팩트)
+  const impactStart = 10.7;
   const aiReveal = interpolate(frame, [impactStart * fps, impactStart * fps + 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   // 더 강한 flash (radial burst 2초 유지)
   const flashOpacity = interpolate(frame, [impactStart * fps - 2, impactStart * fps + 5, impactStart * fps + 25], [0, 0.85, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });

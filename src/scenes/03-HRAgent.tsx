@@ -10,21 +10,22 @@ import { BRAND } from "../lib/brand";
 // 18~35s   HR 임원 — phase16_ilji_simulation (최적 인상률 → Simulation)
 // 35~47s   팀장 — phase17_team_skill
 
-// v9 피드백: 00:47 화면 빠름 → OPENER slowdown, 00:51 자막 삭제, 00:53 sync
+// v9.1 실제 TTS silence 기반 sync
+// silences: @13.53 (오프너 종료) / @24.46 (CEO 종료) / @33.62/35.77 (HR 임원 종료) / @46.79 (팀장 종료)
 const PHASES = {
-  OPENER:    { start: 0.2,  end: 8.5 },  // 6.5 → 8.5 slowdown
-  CEO_VIEW:  { start: 8.5,  end: 18.5, video: "videos/phase13_ceo_overview.webm", videoStartFrom: 0 },
-  HR_HEAD:   { start: 18.5, end: 35.0, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },
-  TEAM_LEAD: { start: 35.0, end: 47.05, video: "videos/phase17_team_skill.webm", videoStartFrom: 0 },
+  OPENER:    { start: 0.2,  end: 13.5 },                                   // 8.5 → 13.5 (오프너 narration 풀 커버)
+  CEO_VIEW:  { start: 13.5, end: 24.5, video: "videos/phase13_ceo_overview.webm", videoStartFrom: 0 },
+  HR_HEAD:   { start: 24.5, end: 36.0, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },
+  TEAM_LEAD: { start: 36.0, end: 47.05, video: "videos/phase17_team_skill.webm", videoStartFrom: 0 },
 };
 
-// v9: "판단·추론·해결" 자막 삭제 (피드백 00:51)
+// v9.1: cue 타이밍도 실제 narration에 맞춰 재조정
 const CUES: Cue[] = [
-  { start: 9.0,  end: 13.5, text: "경영진 AI — 전사 목표·KPI 모니터링" },
-  { start: 14.0, end: 18.0, text: "연말 실적 추정 → 수정해야 할 과제 제시" },
-  { start: 19.0, end: 23.5, text: "HR 임원 AI — 보상 인상률 최적 배분" },
-  { start: 24.0, end: 30.0, text: "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
-  { start: 35.5, end: 45.5, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
+  { start: 14.0, end: 19.0, text: "경영진 AI — 전사 목표·KPI 모니터링" },
+  { start: 19.3, end: 24.0, text: "연말 실적 추정 → 수정해야 할 과제 제시" },
+  { start: 25.0, end: 29.5, text: "HR 임원 AI — 보상 인상률 최적 배분" },
+  { start: 30.0, end: 35.5, text: "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
+  { start: 36.5, end: 46.0, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
 ];
 
 export const HRAgentScene: React.FC = () => {
@@ -56,17 +57,17 @@ const OpenerPhase: React.FC = () => {
   const title = spring({ frame: lf, fps, config: { damping: 20, stiffness: 110 } });
   const KEYWORDS = [
     { label: "판단", delay: 0.5 },
-    { label: "추론", delay: 1.5 },
-    { label: "해결", delay: 2.7 },
+    { label: "추론", delay: 2.0 },
+    { label: "해결", delay: 4.0 },
   ];
-  // v9 피드백 00:53: agent 카드를 "경영진·HR임원·팀장" 나레이션 시점에 맞춤
+  // v9.1 실제 TTS sync: "경영진, HR 임원, 모든 팀장" narration ~6~9s 사이 → 카드도 그 시점
   const AGENTS = [
-    { role: "경영진",   focus: "전사 목표·KPI",     color: BRAND.colors.primary,    delay: 5.2 },
-    { role: "HR 임원",  focus: "보상 인상률 배분",  color: BRAND.colors.accent,     delay: 5.8 },
-    { role: "팀장",     focus: "1:1 면담 · KPI",    color: BRAND.colors.accentWarm, delay: 6.4 },
+    { role: "경영진",   focus: "전사 목표·KPI",     color: BRAND.colors.primary,    delay: 7.0 },
+    { role: "HR 임원",  focus: "보상 인상률 배분",  color: BRAND.colors.accent,     delay: 7.7 },
+    { role: "팀장",     focus: "1:1 면담 · KPI",    color: BRAND.colors.accentWarm, delay: 8.4 },
   ];
-  // 매듭 풀림 애니메이션: 4~5s 사이 꼬인 선이 3가닥으로 풀려 각 에이전트 카드로 이어짐
-  const knotProgress = interpolate(lf, [4 * fps, 5.5 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 매듭 풀림 애니메이션 — "감으로만 풀기 어려운 복잡한 문제를 해결합니다" narration 구간(5~6s)
+  const knotProgress = interpolate(lf, [5 * fps, 7 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{
       opacity, padding: "80px 120px",
@@ -81,9 +82,9 @@ const OpenerPhase: React.FC = () => {
           복잡한 인사 문제를 <span style={{ color: BRAND.colors.accentWarm }}>AI 에이전트</span>가 풀어냅니다
         </div>
       </div>
-      {/* 매듭 풀림 애니메이션 — 3가닥 SVG path */}
+      {/* 매듭 풀림 애니메이션 — 3가닥 SVG path (5~7s) */}
       <div style={{ position: "relative", height: 120, display: "flex", justifyContent: "center" }}>
-        <svg width="600" height="120" viewBox="0 0 600 120" style={{ opacity: interpolate(lf, [3.5 * fps, 4 * fps, 6.5 * fps], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+        <svg width="600" height="120" viewBox="0 0 600 120" style={{ opacity: interpolate(lf, [4.5 * fps, 5 * fps, 7.2 * fps], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
           {/* 3가닥의 path가 knotProgress에 따라 꼬임→풀림 */}
           {[BRAND.colors.primary, BRAND.colors.accent, BRAND.colors.accentWarm].map((color, i) => {
             const targetX = 150 + i * 150;

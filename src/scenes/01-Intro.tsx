@@ -11,12 +11,13 @@ import { BRAND } from "../lib/brand";
 // 19~22s "쉐막은 궁금증을 모니터링 하며 답을 제안합니다"
 // 23~31s 외양간 브랜드 스토리 (소 잃고 외양간 고치지 말자 / 미리 예측하자)
 
-// 피드백 v8 반영: 질문 타이밍 slowdown (00:22 말보다 화면 빠름)
-const Q_START = [0.8, 5.0, 9.2];
-const SURVEY_AT = 13.0;
-const QUESTION_AT = 16.0;
-const MONITOR_AT = 19.5;
-const BARN_AT = 23.0;
+// v9.1: 실제 TTS silence 측정 기반 sync
+// silences @3.71/6.32/8.26 (Q1/Q2/Q3 종료) / @16.17 (survey 종료) / @19.57 (question 종료) / @24.04 (monitor 종료)
+const Q_START = [0.3, 4.0, 6.7];
+const SURVEY_AT = 12.0;
+const QUESTION_AT = 16.5;
+const MONITOR_AT = 20.0;
+const BARN_AT = 24.3;
 
 const QUESTIONS = [
   "요즘 같은 때 우리 회사 보상 수준은 경쟁력 있나요?",
