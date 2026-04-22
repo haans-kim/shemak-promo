@@ -248,13 +248,15 @@ const BarnStoryPhase: React.FC = () => {
       display: "flex", alignItems: "center", justifyContent: "center",
       flexDirection: "column", gap: 24, opacity, padding: "0 140px", textAlign: "center",
     }}>
-      {/* 외양간 — 진짜 외양간 스타일 (낮고 넓은 본체, 짚 지붕, 입구 개방, 좌우 울타리) */}
-      {/* 등장: 짚 지붕부터 본체로 순차 reveal 효과를 위해 opacity 단계화 */}
-      <div style={{
-        opacity: intro,
-        transform: `translateY(${interpolate(intro, [0, 1], [-30, 0])}px) scale(${interpolate(intro, [0, 1], [0.85, 1])})`,
-      }}>
-        <Barn width={500} cowVisible={true} showFence={true} />
+      {/* 외양간 — v11-final: 심플 울타리 6막대 순차 드롭 + 🐂 (갈색 황소) */}
+      <div style={{ opacity: interpolate(lf, [0, 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+        <Barn
+          width={520}
+          startAt={BARN_AT + 0.3}
+          cowAt={2.2}
+          plankDelays={[0.3, 0.55, 0.8, 1.05, 1.3, 1.55]}
+          showRoof={true}
+        />
       </div>
       {/* 메인 텍스트 */}
       <div style={{
