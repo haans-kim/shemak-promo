@@ -12,9 +12,9 @@ import { BRAND } from "../lib/brand";
 //   13.66+        : Contact
 
 const T_VALUE_START   = 0.1;
-const T_SCALE_START   = 4.0;    // 4.2 → 4.0 (narration 4.03과 정렬)
-const T_BRAND_START   = 8.0;    // 9.0 → 8.0 (slogan narration 8.08과 정렬) ⭐ 핵심
-const T_CONTACT_START = 13.66;  // 13.7 → 13.66 (narration silence 정확히)
+const T_SCALE_START   = 4.0;    // narration 4.03
+const T_BRAND_START   = 8.0;    // narration 8.08 ⭐ 핵심
+const T_CONTACT_START = 13.4;   // narration 13.66 - 0.26s (spring fade 감안)
 
 export const ClosingScene: React.FC = () => {
   return (
@@ -105,8 +105,8 @@ const BrandBlock: React.FC = () => {
   const reveal = spring({ frame: frame - startFrame, fps, config: { damping: 18, stiffness: 100 } });
   const fadeOut = interpolate(frame, [endFrame - 10, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
-  // v13: "인싸이트그룹 쉐막" signature — narration 11.27 에 맞춤 (T_BRAND_START=8.0 + 3.3 = 11.3)
-  const brandReveal = spring({ frame: frame - (T_BRAND_START + 3.3) * fps, fps, config: { damping: 18, stiffness: 100 } });
+  // v13.1: "인싸이트그룹 쉐막" signature — narration 11.27에 정확히 보이도록 (spring fade 0.3s 감안 11.0s 시작)
+  const brandReveal = spring({ frame: frame - (T_BRAND_START + 3.0) * fps, fps, config: { damping: 18, stiffness: 100 } });
   return (
     <div style={{
       position: "absolute", inset: 0,
