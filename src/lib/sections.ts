@@ -21,7 +21,7 @@ export const SECTIONS: Record<SectionId, SectionMeta> = {
   "05": { id: "05", slug: "05-optic-view", title: "Optic",      estimatedSeconds: 30.98, audioFile: "audio/05-optic-view.mp3" },
   "06": { id: "06", slug: "06-pan-hr",     title: "판",         estimatedSeconds: 15.86, audioFile: "audio/06-pan-hr.mp3" },
   "08": { id: "08", slug: "08-foundation", title: "Foundation", estimatedSeconds: 20.11, audioFile: "audio/08-foundation.mp3" },
-  "09": { id: "09", slug: "09-closing",    title: "Closing",    estimatedSeconds: 16.01, audioFile: "audio/09-closing.mp3" },
+  "09": { id: "09", slug: "09-closing",    title: "Closing",    estimatedSeconds: 19.01, audioFile: "audio/09-closing.mp3" },
 };
 
 export const secondsToFrames = (s: number): number => Math.round(s * VIDEO.fps);
