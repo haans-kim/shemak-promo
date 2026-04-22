@@ -1,6 +1,7 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
+import { Barn } from "../components/Barn";
 import { BRAND } from "../lib/brand";
 
 // 08 Foundation (20.11s) — v9 피드백 반영
@@ -8,12 +9,11 @@ import { BRAND } from "../lib/brand";
 // 02:33: CountUp sync 맞춤
 // 02:48: 외양간 callback (아이콘 + 불빛 + 숫자들 모여듦)
 
-// v9.1 실제 TTS silence 기반 sync
-// silences: @7.89 (헤드라인 종료) / @12.92 (3개 숫자 종료) / @17.04 (마지막 숫자 종료)
+// v10: "HR 컨설팅" 화면 전환 빠르게 (02:35 피드백) → CARDS 약간 앞당김
 const HEAD_AT = 0.3;
-const CARDS_START = 8.3;       // was 4.5 — 헤드라인 나레이션 끝난 후 시작
-const CARDS_SPACING = 2.2;     // 4×2.2 = 8.8s (TTS 8~17s와 맞춤)
-const CLOSER_AT = 17.5;        // was 15 — "외양간을 만듭니다" 시점
+const CARDS_START = 7.5;       // 8.3 → 7.5 (HR 컨설팅 카드 빠르게 등장)
+const CARDS_SPACING = 2.3;     // 4×2.3 = 9.2s (16.7s까지)
+const CLOSER_AT = 17.0;        // 17.5 → 17.0 (외양간 애니메이션 시간 확보)
 
 const STATS = [
   { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.1 },
@@ -154,75 +154,121 @@ const StatCard: React.FC<StatProps> = ({ caption, value, suffix, countDur, start
   );
 };
 
-// v9 피드백 02:48: 외양간 callback 애니메이션 (A+B 결합)
-// - 외양간 이미지 + 안에 불빛 켜지는 효과
-// - 숫자들(4개)이 외양간으로 모여드는 궤적 애니메이션
+// v10 옵션 F: 위험 키워드 둥둥 떠다님 → 뽕! 터짐 → 외양간만 남음
+// 외양간 = 01 콜백 (Barn 컴포넌트)
+// 타이밍 (CLOSER 17.5~20.1, 약 2.6s):
+//  0~1.0s: 외양간 + 위험 키워드 6개 떠다님
+//  1.0~1.4s: 외양간 글로우 빌드업
+//  1.4~1.7s: 뽕! 키워드 동시 터짐
+//  1.7~2.6s: 외양간만 남고 텍스트
 const Closer: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = CLOSER_AT * fps;
   const lf = frame - start;
   const reveal = spring({ frame: lf, fps, config: { damping: 20, stiffness: 100 } });
-  // 숫자들이 외양간으로 날아 들어오는 단계 (0~2s)
-  const convergence = interpolate(lf, [0, 2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  // 불빛 켜짐 (1.5~3s)
-  const glow = interpolate(lf, [1.5 * fps, 3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  // 텍스트 등장 (2s~)
-  const textReveal = spring({ frame: lf - 2 * fps, fps, config: { damping: 20, stiffness: 110 } });
 
-  // 4개 숫자의 출발점(이전 StatCard 위치 근사)과 외양간 중심(960, 540)
-  const targets = [
-    { x: 480,  y: 400 },  // 좌상
-    { x: 1440, y: 400 },  // 우상
-    { x: 480,  y: 680 },  // 좌하
-    { x: 1440, y: 680 },  // 우하
+  // 단계별 진행도
+  const floatStart = 0;                 // 위험 떠다님 시작
+  const popMoment = 1.4 * fps;          // 뽕!
+  const glowProgress = interpolate(lf, [0.8 * fps, 1.4 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const popProgress = interpolate(lf, [popMoment, popMoment + 0.3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const textReveal = spring({ frame: lf - 1.7 * fps, fps, config: { damping: 20, stiffness: 110 } });
+
+  // 위험 키워드 6개 (외양간 주변 둥둥 떠다님)
+  const RISKS = [
+    { txt: "이탈",     baseX: -380, baseY: -180 },
+    { txt: "번아웃",   baseX:  380, baseY: -200 },
+    { txt: "퇴직",     baseX: -440, baseY:   30 },
+    { txt: "갈등",     baseX:  440, baseY:   50 },
+    { txt: "스트레스", baseX: -340, baseY:  220 },
+    { txt: "불만",     baseX:  340, baseY:  240 },
   ];
 
   return (
     <div style={{ position: "absolute", inset: 0, opacity: reveal }}>
-      {/* 4개 숫자 dot이 외양간으로 날아들어감 */}
-      {targets.map((t, i) => {
-        const progress = Math.max(0, Math.min(1, (lf / fps - 0.2 * i) / 2));
-        const x = interpolate(progress, [0, 1], [t.x, 960]);
-        const y = interpolate(progress, [0, 1], [t.y, 540]);
-        const alpha = progress < 1 ? 1 : 0;
-        const colors = [BRAND.colors.primary, BRAND.colors.accent, BRAND.colors.accentWarm, "#A78BFA"];
-        return (
-          <div key={i} style={{
-            position: "absolute", left: x - 16, top: y - 16,
-            width: 32, height: 32, borderRadius: 16,
-            background: colors[i],
-            boxShadow: `0 0 20px ${colors[i]}`,
-            opacity: alpha * reveal,
-          }}/>
-        );
-      })}
-      {/* 외양간 아이콘 — 중앙 */}
+      {/* 외양간 — 중앙, glow 동기화 */}
       <div style={{
         position: "absolute", left: "50%", top: "50%",
-        transform: `translate(-50%, -50%) scale(${interpolate(convergence, [0, 1], [0.6, 1])})`,
-        opacity: convergence, textAlign: "center",
+        transform: "translate(-50%, -50%)",
       }}>
-        <div style={{
-          fontSize: 180, lineHeight: 1,
-          // 불빛이 안에서 켜지는 효과 (glow)
-          filter: `drop-shadow(0 0 ${20 + glow * 40}px ${BRAND.colors.accentWarm}${Math.round(glow * 255).toString(16).padStart(2, "0")})`,
-        }}>
-          🏠
-        </div>
-        {/* 불빛 내부 파동 */}
-        <div style={{
-          position: "absolute", left: "50%", top: "50%",
-          transform: `translate(-50%, -50%) scale(${1 + glow * 0.8})`,
-          width: 80, height: 80, borderRadius: "50%",
-          background: `radial-gradient(circle, ${BRAND.colors.accentWarm}${Math.round(glow * 200).toString(16).padStart(2, "0")} 0%, transparent 60%)`,
-          pointerEvents: "none",
-        }}/>
+        <Barn width={500} cowVisible={true} showFence={true} glow={glowProgress} />
       </div>
-      {/* 하단 텍스트 */}
+
+      {/* 위험 키워드 — 둥둥 떠다니다 뽕! */}
+      {RISKS.map((r, i) => {
+        // 부드러운 floating (sine motion)
+        const t = lf / fps;
+        const floatX = r.baseX + Math.sin(t * 1.5 + i) * 12;
+        const floatY = r.baseY + Math.cos(t * 1.2 + i * 0.7) * 10;
+
+        // 뽕! 직전까지는 visible, 후 터지면서 사라짐
+        const opacity = lf < popMoment ? 1 : Math.max(0, 1 - popProgress * 1.5);
+        const scale = lf < popMoment
+          ? 1
+          : interpolate(popProgress, [0, 0.3, 1], [1, 1.6, 0]);
+
+        return (
+          <div key={i}>
+            {/* 키워드 버블 */}
+            <div style={{
+              position: "absolute",
+              left: `calc(50% + ${floatX}px)`,
+              top: `calc(50% + ${floatY}px)`,
+              transform: `translate(-50%, -50%) scale(${scale})`,
+              opacity,
+              padding: "10px 22px",
+              background: "#FEE2E2",
+              border: `3px solid ${BRAND.colors.accentWarm}`,
+              borderColor: "#DC2626",
+              borderRadius: 24,
+              fontSize: 28, fontWeight: 800, color: "#DC2626",
+              whiteSpace: "nowrap",
+              transition: "transform 0.2s",
+            }}>
+              {r.txt}
+            </div>
+            {/* 뽕! 파편 (터질 때만) */}
+            {lf >= popMoment && popProgress < 1 && (
+              <>
+                {[0, 60, 120, 180, 240, 300].map(angle => {
+                  const rad = (angle * Math.PI) / 180;
+                  const dist = 50 * popProgress;
+                  return (
+                    <div key={angle} style={{
+                      position: "absolute",
+                      left: `calc(50% + ${floatX + Math.cos(rad) * dist}px)`,
+                      top: `calc(50% + ${floatY + Math.sin(rad) * dist}px)`,
+                      transform: "translate(-50%, -50%)",
+                      width: 8, height: 8, borderRadius: 4,
+                      background: "#DC2626",
+                      opacity: 1 - popProgress,
+                    }}/>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        );
+      })}
+
+      {/* "뽕!" 강조 — 매우 짧게 (1.4~1.7s) */}
+      {lf >= popMoment && lf < popMoment + 0.5 * fps && (
+        <div style={{
+          position: "absolute", left: "50%", top: "30%",
+          transform: `translate(-50%, -50%) scale(${interpolate(popProgress, [0, 0.5, 1], [0.5, 1.4, 1])})`,
+          fontSize: 80, fontWeight: 900, color: "#DC2626",
+          opacity: 1 - popProgress,
+          textShadow: "0 0 30px rgba(220,38,38,0.6)",
+        }}>
+          💥 뽕!
+        </div>
+      )}
+
+      {/* 마무리 텍스트 (1.7s~) */}
       <div style={{
-        position: "absolute", left: 0, right: 0, bottom: 100,
+        position: "absolute", left: 0, right: 0, bottom: 80,
         textAlign: "center",
-        fontSize: 46, fontWeight: 800, color: BRAND.colors.dark.text,
+        fontSize: 50, fontWeight: 800, color: BRAND.colors.dark.text,
         lineHeight: 1.3,
         opacity: textReveal,
         transform: `translateY(${interpolate(textReveal, [0, 1], [20, 0])}px)`,

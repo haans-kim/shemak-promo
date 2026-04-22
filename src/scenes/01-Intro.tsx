@@ -1,5 +1,6 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
+import { Barn } from "../components/Barn";
 import { BRAND } from "../lib/brand";
 
 // 01 Intro (31.74s) — 2026-04-21 최종
@@ -11,9 +12,9 @@ import { BRAND } from "../lib/brand";
 // 19~22s "쉐막은 궁금증을 모니터링 하며 답을 제안합니다"
 // 23~31s 외양간 브랜드 스토리 (소 잃고 외양간 고치지 말자 / 미리 예측하자)
 
-// v9.1: 실제 TTS silence 측정 기반 sync
-// silences @3.71/6.32/8.26 (Q1/Q2/Q3 종료) / @16.17 (survey 종료) / @19.57 (question 종료) / @24.04 (monitor 종료)
-const Q_START = [0.3, 4.0, 6.7];
+// v10: Q3 너무 빠름 피드백(00:07) → Q3 등장 후 체류 길게 + survey 진입 더 늦춤
+// 또한 narration text "많아 진다는데" → "많아진다는데" (TTS는 이미 녹음됨, 자막만 변경)
+const Q_START = [0.3, 4.0, 7.5];   // Q3 6.7 → 7.5 (체류 길게)
 const SURVEY_AT = 12.0;
 const QUESTION_AT = 16.5;
 const MONITOR_AT = 20.0;
@@ -22,7 +23,7 @@ const BARN_AT = 24.3;
 const QUESTIONS = [
   "요즘 같은 때 우리 회사 보상 수준은 경쟁력 있나요?",
   "저 부서는 왜 매일 야근하나요? 무슨 문제가 있을까요?",
-  "다른 회사 알아보는 사람들이 많아 진다는데 왜 그렇죠?",
+  "다른 회사 알아보는 사람들이 많아진다는데 왜 그렇죠?",  // v10: 띄어쓰기 수정
 ];
 
 export const IntroScene: React.FC = () => {
@@ -122,24 +123,64 @@ const QuestionConnector: React.FC = () => {
   );
 };
 
+// v10 신규 효과 (00:20): "늘 모니터링하며" 줌아웃 → 알고보니 모니터였던 reveal
 const MonitorPhase: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = MONITOR_AT * fps;
   const end = BARN_AT * fps;
-  const reveal = spring({ frame: frame - start, fps, config: { damping: 20, stiffness: 110 } });
+  const lf = frame - start;
+  const reveal = spring({ frame: lf, fps, config: { damping: 20, stiffness: 110 } });
   const fadeOut = interpolate(frame, [end - 6, end + 2], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
+
+  // 줌아웃 트리거: "늘 모니터링" 시점 (대략 1.5s 후) — scale 1.4 → 1.0
+  const zoomOut = interpolate(lf, [1.5 * fps, 3 * fps], [1.4, 1.0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 모니터 frame reveal: 줌아웃 시작과 함께 (1.5s)
+  const monitorReveal = interpolate(lf, [1.5 * fps, 2.5 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
   return (
     <div style={{
       position: "absolute", inset: 0,
       display: "flex", alignItems: "center", justifyContent: "center",
-      flexDirection: "column", gap: 28, opacity, padding: "0 140px", textAlign: "center",
+      opacity,
     }}>
-      <div style={{ fontSize: 60, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1 }}>
-        <span style={{ color: BRAND.colors.primary }}>쉐막</span>은 이런 궁금증을
-      </div>
-      <div style={{ fontSize: 56, fontWeight: 700, color: BRAND.colors.light.text }}>
-        <span style={{ color: BRAND.colors.accentWarm }}>늘 모니터링</span>하며 답을 제안합니다.
+      {/* 모니터 frame (스크린이 줌아웃되면서 베젤이 보임) */}
+      <div style={{
+        position: "relative",
+        padding: 40,
+        borderRadius: 16,
+        background: "#1F2937",
+        border: `12px solid #111827`,
+        boxShadow: monitorReveal > 0 ? `0 30px 60px rgba(0,0,0,0.3), inset 0 0 30px rgba(0,0,0,0.4)` : "none",
+        transform: `scale(${interpolate(monitorReveal, [0, 1], [1.4, 0.85])})`,
+        transition: "all 0.3s",
+      }}>
+        {/* 모니터 화면 */}
+        <div style={{
+          background: BRAND.colors.light.bg,
+          padding: "60px 80px",
+          borderRadius: 8,
+          textAlign: "center",
+          minWidth: 1100,
+        }}>
+          <div style={{ fontSize: 60, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1, marginBottom: 28 }}>
+            <span style={{ color: BRAND.colors.primary }}>쉐막</span>은 이런 궁금증을
+          </div>
+          <div style={{ fontSize: 56, fontWeight: 700, color: BRAND.colors.light.text }}>
+            <span style={{ color: BRAND.colors.accentWarm }}>늘 모니터링</span>하며 답을 제안합니다.
+          </div>
+        </div>
+        {/* 모니터 받침대 (scale 후 등장) */}
+        {monitorReveal > 0.5 && (
+          <div style={{
+            position: "absolute", left: "50%", top: "100%",
+            transform: "translateX(-50%)",
+            opacity: (monitorReveal - 0.5) * 2,
+          }}>
+            <div style={{ width: 120, height: 16, background: "#1F2937", borderRadius: 4 }}/>
+            <div style={{ width: 200, height: 8, background: "#111827", borderRadius: 4, marginTop: 4 }}/>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -171,42 +212,13 @@ const BarnStoryPhase: React.FC = () => {
       display: "flex", alignItems: "center", justifyContent: "center",
       flexDirection: "column", gap: 24, opacity, padding: "0 140px", textAlign: "center",
     }}>
-      {/* 외양간 = 울타리 6개 + 소 이모지 */}
+      {/* 외양간 — 진짜 외양간 스타일 (낮고 넓은 본체, 짚 지붕, 입구 개방, 좌우 울타리) */}
+      {/* 등장: 짚 지붕부터 본체로 순차 reveal 효과를 위해 opacity 단계화 */}
       <div style={{
-        position: "relative", width: 520, height: 160,
-        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        opacity: intro,
+        transform: `translateY(${interpolate(intro, [0, 1], [-30, 0])}px) scale(${interpolate(intro, [0, 1], [0.85, 1])})`,
       }}>
-        {/* 소 이모지 */}
-        <div style={{
-          position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 10,
-          fontSize: 80, lineHeight: 1, opacity: intro,
-        }}>🐄</div>
-        {/* 6개 울타리 막대 */}
-        {plankDelays.map((d, i) => {
-          const drop = spring({ frame: lf - d * fps, fps, config: { damping: 12, stiffness: 220, mass: 0.6 } });
-          const x = 80 + i * 60;
-          return (
-            <div key={i} style={{
-              position: "absolute", left: x, bottom: 0, width: 16, height: 140,
-              background: `linear-gradient(180deg, ${BRAND.colors.accentWarm} 0%, #B45309 100%)`,
-              borderRadius: 4,
-              opacity: drop,
-              transform: `translateY(${interpolate(drop, [0, 1], [-200, 0])}px) rotate(${interpolate(drop, [0, 0.7, 1], [15, -5, 0])}deg)`,
-              boxShadow: `0 4px 8px rgba(0,0,0,0.2)`,
-            }}/>
-          );
-        })}
-        {/* 가로 막대 2개 (연결) */}
-        <div style={{
-          position: "absolute", left: 70, bottom: 100, width: 390, height: 12,
-          background: "#B45309", borderRadius: 3,
-          opacity: spring({ frame: lf - 2.1 * fps, fps, config: { damping: 14, stiffness: 180 } }),
-        }}/>
-        <div style={{
-          position: "absolute", left: 70, bottom: 40, width: 390, height: 12,
-          background: "#B45309", borderRadius: 3,
-          opacity: spring({ frame: lf - 2.3 * fps, fps, config: { damping: 14, stiffness: 180 } }),
-        }}/>
+        <Barn width={500} cowVisible={true} showFence={true} />
       </div>
       {/* 메인 텍스트 */}
       <div style={{

@@ -3,13 +3,13 @@ import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
-// 02 IGIntro (16.43s) — v9.1 실제 TTS silence 기반 sync
+// 02 IGIntro (16.43s) — v10: "다양한 컨설팅" 화면 전환 빠르게 (00:42 피드백)
 // silences: @9.50 (20년 설명 종료) / @11.91 (솔루션+AI 종료) / @14.97 (HR AI 종료)
 
 const IP_FRAME_AT = 0.0;
-const AI_AT = 9.5;      // was 5.5 — "솔루션 위에 AI 서비스" narration 시작 시점
-const REVEAL_AT = 12.0; // was 11.0 — "인싸이트그룹이 만든 HR AI"
-const SHEMAK_AT = 14.5; // was 13.8 — "쉐막입니다"
+const AI_AT = 8.7;      // 9.5 → 8.7 (narration 시작 직전 preview, 화면 전환 빠르게)
+const REVEAL_AT = 12.0;
+const SHEMAK_AT = 14.5;
 
 export const IGIntroScene: React.FC = () => {
   return (

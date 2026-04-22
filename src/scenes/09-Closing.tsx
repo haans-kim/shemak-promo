@@ -2,16 +2,13 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 09 Closing (16.01s) — v9: 장면 분리 (피드백 03:03)
-// 0~6s   VALUE: "인사는 결국 사람이 합니다. HR AI는 VALUE를 더합니다."
-// 7~10s  SCALE: 규모 스펙트럼 (소규모 → 중견 → 대기업)
-// 10~13s BRAND: "데이터로, 조직을 해석합니다" + "인싸이트그룹, 쉐막입니다"
-// 13~16s CONTACT: shemak@insightgroup.co.kr
+// 09 Closing (16.01s) — v10: 후반 화면 빠름 피드백 (02:49/55/58/03:03)
+// 각 블록 transition 부드럽게, BRAND 더 길게, CONTACT 별도 장면화
 
 const T_VALUE_START   = 0.3;
-const T_SCALE_START   = 7.0;
-const T_BRAND_START   = 10.2;
-const T_CONTACT_START = 13.2;
+const T_SCALE_START   = 6.0;    // 7.0 → 6.0 (VALUE 1초 단축, SCALE에 시간 더)
+const T_BRAND_START   = 9.5;    // 10.2 → 9.5 (BRAND 진입 빠르게, 체류 길게)
+const T_CONTACT_START = 14.0;   // 13.2 → 14.0 (BRAND "쉐막입니다" 충분히 보여준 후 contact)
 
 export const ClosingScene: React.FC = () => {
   return (
@@ -39,8 +36,9 @@ const ValueBlock: React.FC = () => {
   const fadeOut = interpolate(frame, [endFrame - 15, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
 
-  const valueStart = 3.8;
-  const valueReveal = interpolate(frame, [valueStart * fps, valueStart * fps + 4], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // v10: snap 너무 빠름 → 0.5s smooth fade (15 frames)
+  const valueStart = 3.9;
+  const valueReveal = interpolate(frame, [valueStart * fps, valueStart * fps + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <div style={{

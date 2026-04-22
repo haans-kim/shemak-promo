@@ -11,13 +11,13 @@ import { BRAND } from "../lib/brand";
 // 18~27s  WHATIF: 어느 영역 개선하면 민감도 분석 (phase28 ons)
 // 27~31s  TRANSITION: 판 연결
 
-// v9.1 실제 TTS silence 기반 sync
-// silences: @4.34 (유형화 종료) / @12.29 (DIVERSE 종료) / @19.11 (RISK 종료) / @23.64 (WHATIF opener 종료) / @28.25 (WHATIF slider 종료)
+// v10 피드백: 02:01 What-If 화면 전환 빠르게, 01:53 RISK 화면 부적절 → phase25 변경 예정 (재녹화)
+// silences: @4.34 / @12.29 / @19.11 / @23.64 / @28.25
 const PHASES = {
-  TYPES:      { start: 0.3,  end: 4.5,   video: "videos/phase22_optic_ons_types.webm",  videoStartFrom: 0 },
+  TYPES:      { start: 0.3,  end: 4.5,   video: "videos/phase22_optic_ons_types.webm",  videoStartFrom: 240 }, // v10: 8s skip — 4카드 sweep 구간 노출
   DIVERSE:    { start: 4.5,  end: 12.5,  video: "videos/phase24_optic_cross.webm",      videoStartFrom: 0 },
-  RISK:       { start: 12.5, end: 19.5,  video: "videos/phase25_optic_ga_qqrisk.webm",  videoStartFrom: 0 },
-  WHATIF:     { start: 19.5, end: 28.5,  video: "videos/phase28_optic_ons_whatif.webm", videoStartFrom: 0 },
+  RISK:       { start: 12.5, end: 18.8,  video: "videos/phase25_optic_ga_qqrisk.webm",  videoStartFrom: 0 },
+  WHATIF:     { start: 18.8, end: 28.5,  video: "videos/phase28_optic_ons_whatif.webm", videoStartFrom: 240 }, // v10: 8s skip — 슬라이더 드래그 구간 노출
   TRANSITION: { start: 28.5, end: 30.98 },
 };
 

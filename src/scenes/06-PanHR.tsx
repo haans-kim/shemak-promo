@@ -11,10 +11,9 @@ import { BRAND } from "../lib/brand";
 // ※ phase33 영상은 중간에 M3 탭 클릭 애니메이션 포함 — 그대로 활용
 
 const PHASES = {
-  M0_OPENER: { start: 0.2,  end: 5.0,   video: "videos/phase31_pan_m0.webm",         videoStartFrom: 0 },
-  M1_PLAN:   { start: 5.0,  end: 12.0,  video: "videos/phase33_pan_m1_to_m3.webm",   videoStartFrom: 0 },
-  M3_SKILL:  { start: 12.0, end: 15.86, video: "videos/phase33_pan_m1_to_m3.webm",   videoStartFrom: 180 },
-  // ^ startFrom 180 frames = 6s; phase33은 M1→M3 전환 포함 영상 (총 9s)
+  M0_OPENER: { start: 0.2,  end: 5.0,   video: "videos/phase31_pan_m0.webm",         videoStartFrom: 120 }, // v10: 4s skip — 로딩 제거 후 M0 노출
+  M1_PLAN:   { start: 5.0,  end: 12.0,  video: "videos/phase33_pan_m1_to_m3.webm",   videoStartFrom: 180 }, // v10: 6s skip — M1 클릭 직후부터
+  M3_SKILL:  { start: 12.0, end: 15.86, video: "videos/phase33_pan_m1_to_m3.webm",   videoStartFrom: 540 }, // v10: 18s skip — M3 실제 등장 시점
 };
 
 const CUES: Cue[] = [
