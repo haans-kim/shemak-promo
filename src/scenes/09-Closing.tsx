@@ -2,18 +2,19 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 09 Closing (16.01s) — v12: TTS silence 기반 narration 싱크 재조정 (02:49~02:53 sync 피드백)
-// 실제 narration 구간 (silence detect 기반):
-//   0     ~ 1.41s : "인사는 결국 사람이 합니다"
-//   1.76  ~ 3.66s : "다만 HR AI는 VALUE를 더합니다"
-//   4.07  ~ 10.93s: "모든 규모의 조직을 위해 ... 데이터로 조직을 해석합니다" (긴 문장)
-//   11.32 ~ 13.25s: "인싸이트그룹 쉐막"
-//   13.66 ~ 16.01s: Contact
+// 09 Closing (16.01s) — v13: -40dB 정밀 silence 기반 narration 싱크 재조정
+// 실제 narration 구간:
+//   0.20 ~ 1.44s  : "인사는 결국 사람이 합니다"
+//   1.75 ~ 3.68s  : "다만 HR AI는 VALUE를 더합니다"
+//   4.03 ~ 7.82s  : "소규모 벤처부터 중견기업 대기업까지"
+//   8.08 ~ 10.95s : "데이터로 조직을 해석합니다"   ← v12에서 9.0s로 잡아 1s 늦었음
+//   11.27 ~ 13.36s: "인싸이트그룹 쉐막입니다"
+//   13.66+        : Contact
 
-const T_VALUE_START   = 0.1;    // 0.3 → 0.1 (narration 시작과 거의 동시)
-const T_SCALE_START   = 4.2;    // 6.0 → 4.2 ("모든 규모의 조직" narration에 맞춤)
-const T_BRAND_START   = 9.0;    // 9.5 → 9.0 ("데이터로 조직을 해석합니다" 나올 때 slogan 노출)
-const T_CONTACT_START = 13.7;   // 14.0 → 13.7 (contact narration과 정렬)
+const T_VALUE_START   = 0.1;
+const T_SCALE_START   = 4.0;    // 4.2 → 4.0 (narration 4.03과 정렬)
+const T_BRAND_START   = 8.0;    // 9.0 → 8.0 (slogan narration 8.08과 정렬) ⭐ 핵심
+const T_CONTACT_START = 13.66;  // 13.7 → 13.66 (narration silence 정확히)
 
 export const ClosingScene: React.FC = () => {
   return (
@@ -41,8 +42,8 @@ const ValueBlock: React.FC = () => {
   const fadeOut = interpolate(frame, [endFrame - 15, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
 
-  // v12: 2번째 줄 "HR AI는 VALUE를 더합니다" — narration 1.76~3.66 에 맞춤
-  const valueStart = 1.8;  // 3.9 → 1.8
+  // v13: 2번째 줄 "HR AI는 VALUE를 더합니다" — narration 1.75~3.68 정확히
+  const valueStart = 1.75;
   const valueReveal = interpolate(frame, [valueStart * fps, valueStart * fps + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
@@ -104,8 +105,8 @@ const BrandBlock: React.FC = () => {
   const reveal = spring({ frame: frame - startFrame, fps, config: { damping: 18, stiffness: 100 } });
   const fadeOut = interpolate(frame, [endFrame - 10, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
-  // v12: "인싸이트그룹 쉐막" signature — narration 11.32 에 맞춤 (T_BRAND_START=9.0 + 2.3 = 11.3)
-  const brandReveal = spring({ frame: frame - (T_BRAND_START + 2.3) * fps, fps, config: { damping: 18, stiffness: 100 } });
+  // v13: "인싸이트그룹 쉐막" signature — narration 11.27 에 맞춤 (T_BRAND_START=8.0 + 3.3 = 11.3)
+  const brandReveal = spring({ frame: frame - (T_BRAND_START + 3.3) * fps, fps, config: { damping: 18, stiffness: 100 } });
   return (
     <div style={{
       position: "absolute", inset: 0,
