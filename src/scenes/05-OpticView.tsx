@@ -11,22 +11,24 @@ import { BRAND } from "../lib/brand";
 // 18~27s  WHATIF: 어느 영역 개선하면 민감도 분석 (phase28 ons)
 // 27~31s  TRANSITION: 판 연결
 
+// v9.1 실제 TTS silence 기반 sync
+// silences: @4.34 (유형화 종료) / @12.29 (DIVERSE 종료) / @19.11 (RISK 종료) / @23.64 (WHATIF opener 종료) / @28.25 (WHATIF slider 종료)
 const PHASES = {
-  TYPES:      { start: 0.3,  end: 5.0,   video: "videos/phase22_optic_ons_types.webm",  videoStartFrom: 0 },
-  DIVERSE:    { start: 5.0,  end: 10.0,  video: "videos/phase24_optic_cross.webm",      videoStartFrom: 0 },
-  RISK:       { start: 10.0, end: 18.0,  video: "videos/phase25_optic_ga_qqrisk.webm",  videoStartFrom: 0 },
-  WHATIF:     { start: 18.0, end: 27.0,  video: "videos/phase28_optic_ons_whatif.webm", videoStartFrom: 0 },
-  TRANSITION: { start: 27.0, end: 30.98 },
+  TYPES:      { start: 0.3,  end: 4.5,   video: "videos/phase22_optic_ons_types.webm",  videoStartFrom: 0 },
+  DIVERSE:    { start: 4.5,  end: 12.5,  video: "videos/phase24_optic_cross.webm",      videoStartFrom: 0 },
+  RISK:       { start: 12.5, end: 19.5,  video: "videos/phase25_optic_ga_qqrisk.webm",  videoStartFrom: 0 },
+  WHATIF:     { start: 19.5, end: 28.5,  video: "videos/phase28_optic_ons_whatif.webm", videoStartFrom: 0 },
+  TRANSITION: { start: 28.5, end: 30.98 },
 };
 
 const CUES: Cue[] = [
-  { start: 0.5,  end: 4.5,  text: "설문 결과 → AI가 의식 패턴 유형화" },
-  { start: 5.5,  end: 9.5,  text: "몰입도뿐 아닙니다 — 만족도 · 리더십 · 조직 문화" },
-  { start: 10.5, end: 13.5, text: "영역별 타사 비교 + 결과 보고" },
-  { start: 13.8, end: 17.5, text: "조직 리스크 사전 탐지 · 이탈 위험군 발굴" },
-  { start: 18.5, end: 22.0, text: "What-If 시뮬레이터" },
-  { start: 22.5, end: 26.5, text: "요인 개선 시 몰입도 변화 민감도 분석" },
-  { start: 27.2, end: 30.5, text: "판 모듈과 함께 → 진단이 실행과제로" },
+  { start: 0.5,  end: 4.0,  text: "설문 결과 → AI가 의식 패턴 유형화" },
+  { start: 5.0,  end: 8.5,  text: "몰입도뿐 아닙니다 — 만족도 · 리더십 · 조직 문화" },
+  { start: 9.0,  end: 12.0, text: "영역별 타사 비교 + 결과 보고" },
+  { start: 13.0, end: 18.5, text: "리스크 사전 탐지 · 이탈 위험군 발굴" },
+  { start: 20.0, end: 22.5, text: "What-If 시뮬레이터" },
+  { start: 23.0, end: 28.0, text: "요인 개선 시 몰입도 변화 민감도 분석" },
+  { start: 28.7, end: 30.8, text: "판 모듈과 함께 → 진단이 실행과제로" },
 ];
 
 export const OpticViewScene: React.FC = () => {
