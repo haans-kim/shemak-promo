@@ -2,21 +2,22 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 09 Closing (16.01s) — v14: 최종 렌더 MP4에서 직접 측정한 narration 타이밍
-// (Remotion 렌더가 raw mp3보다 0.2s 추가 leading silence 생성 → 모든 narration +0.2s)
-// 최종 mp4 기준 narration 구간:
-//   0.40 ~ 1.64s  : "인사는 결국 사람이 합니다"
-//   1.94 ~ 3.88s  : "다만 HR AI는 VALUE를 더합니다"
-//   4.28 ~ 8.02s  : "소규모 벤처부터 중견기업 대기업까지"
-//   8.29 ~ 11.15s : "데이터로 조직을 해석합니다"
-//   11.48 ~ 13.57s: "인싸이트그룹 쉐막입니다"
-//   13.86+        : Contact
-// 전략: 블록을 narration 시작 시점 "정확히"에 시작 → 전환 애니메이션이 narration과 동시에 발생
+// 09 Closing (19.01s after haans +3s Contact hold) — v15: USER-SPECIFIED timestamps
+// 사용자 xlsx "1814 ver" 시트에서 직접 지정한 화면 전환 시각 그대로 적용
+// (my audio measurement와 사용자 perception이 계속 어긋남 → 사용자 timestamp를 진실로 채택)
+//
+// scene 09 시작 = video 167.13s (02:47.13)
+// 사용자 요청 (절대 video time → scene-local):
+//   02:50 "인사는 결국"      → scene 2.87
+//   02:55 "소규모~대기업"     → scene 7.87
+//   02:59 "데이터로 해석"     → scene 11.87
+//   03:01 "인싸이트그룹 쉐막"  → scene 13.87 (BrandBlock signature)
+//   Contact 유지 시간 늘려야 → haans가 scene 09 duration 19.01s로 +3s 연장
 
-const T_VALUE_START   = 0.4;
-const T_SCALE_START   = 4.28;
-const T_BRAND_START   = 8.29;
-const T_CONTACT_START = 13.85;
+const T_VALUE_START   = 2.87;   // 0.4  → 2.87 (user: 02:50)
+const T_SCALE_START   = 7.87;   // 4.28 → 7.87 (user: 02:55)
+const T_BRAND_START   = 11.87;  // 8.29 → 11.87 (user: 02:59)
+const T_CONTACT_START = 16.0;   // 13.85 → 16.0 (signature 13.87 이후 Contact 충분 시간)
 
 export const ClosingScene: React.FC = () => {
   return (
@@ -44,8 +45,8 @@ const ValueBlock: React.FC = () => {
   const fadeOut = interpolate(frame, [endFrame - 15, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
 
-  // v14: 2번째 줄 "HR AI는 VALUE" — 최종 mp4 narration 1.94s와 정확 일치
-  const valueStart = 1.94;
+  // v15: line 2 "HR AI는 VALUE" — user line1 2.87 기준 시프트 (+2.47)
+  const valueStart = 4.41;  // 1.94 + 2.47
   const valueReveal = interpolate(frame, [valueStart * fps, valueStart * fps + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
@@ -107,9 +108,8 @@ const BrandBlock: React.FC = () => {
   const reveal = spring({ frame: frame - startFrame, fps, config: { damping: 18, stiffness: 100 } });
   const fadeOut = interpolate(frame, [endFrame - 10, endFrame], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
-  // v14: signature "인싸이트그룹 쉐막" — 최종 mp4 narration 11.48s와 정확 일치
-  // T_BRAND_START=8.29, offset = 11.48 - 8.29 = 3.19
-  const brandReveal = spring({ frame: frame - (T_BRAND_START + 3.19) * fps, fps, config: { damping: 18, stiffness: 100 } });
+  // v15: signature "인싸이트그룹 쉐막" — user: 03:01 = scene 13.87 (T_BRAND=11.87 + 2.0)
+  const brandReveal = spring({ frame: frame - (T_BRAND_START + 2.0) * fps, fps, config: { damping: 18, stiffness: 100 } });
   return (
     <div style={{
       position: "absolute", inset: 0,
