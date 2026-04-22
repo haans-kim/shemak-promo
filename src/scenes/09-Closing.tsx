@@ -114,12 +114,11 @@ const BrandBlock: React.FC = () => {
         데이터로, <span style={{ color: BRAND.colors.primary }}>조직을 해석합니다</span>
       </div>
       <div style={{
-        display: "flex", alignItems: "center", gap: 16, opacity: brandReveal,
+        display: "flex", alignItems: "baseline", gap: 20, opacity: brandReveal,
       }}>
-        <div style={{ fontSize: 24, color: BRAND.colors.light.textMuted }}>인싸이트그룹</div>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: BRAND.colors.primary }}/>
-        <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: 3, color: BRAND.colors.light.text }}>
-          쉐막입니다
+        <div style={{ fontSize: 32, color: BRAND.colors.light.textMuted, fontWeight: 500 }}>인싸이트그룹</div>
+        <div style={{ fontSize: 48, fontWeight: 800, letterSpacing: 2, color: BRAND.colors.light.text }}>
+          쉐막
         </div>
       </div>
     </div>

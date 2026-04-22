@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
@@ -54,11 +54,15 @@ const usePhase = (phase: { start: number; end: number }) => {
   return { opacity: inP * outP, frame, fps, start, end };
 };
 
+// v11: Sequence 래핑으로 phase 시작과 비디오 재생 시작 동기화
 const VideoOnly: React.FC<{ phase: { start: number; end: number; video: string; videoStartFrom: number } }> = ({ phase }) => {
   const { opacity } = usePhase(phase);
+  const { fps } = useVideoConfig();
   return (
     <AbsoluteFill style={{ opacity }}>
-      <FullVideo video={phase.video} videoStartFrom={phase.videoStartFrom} />
+      <Sequence from={Math.round(phase.start * fps)}>
+        <FullVideo video={phase.video} videoStartFrom={phase.videoStartFrom} />
+      </Sequence>
     </AbsoluteFill>
   );
 };

@@ -123,20 +123,26 @@ const QuestionConnector: React.FC = () => {
   );
 };
 
-// v10 신규 효과 (00:20): "늘 모니터링하며" 줌아웃 → 알고보니 모니터였던 reveal
+// v11: 모니터 피드백 3건 — ①모니터 같지 않음 ②줌아웃 뻑뻑 ③모니터링 나레이션 시점 동기화
+// 개선: cubic ease-in-out / 베젤 두껍게 + 받침대(neck+base) / 줌 타이밍 "모니터링" 단어와 정렬
 const MonitorPhase: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = MONITOR_AT * fps;
   const end = BARN_AT * fps;
   const lf = frame - start;
-  const reveal = spring({ frame: lf, fps, config: { damping: 20, stiffness: 110 } });
-  const fadeOut = interpolate(frame, [end - 6, end + 2], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const opacity = reveal * fadeOut;
 
-  // 줌아웃 트리거: "늘 모니터링" 시점 (대략 1.5s 후) — scale 1.4 → 1.0
-  const zoomOut = interpolate(lf, [1.5 * fps, 3 * fps], [1.4, 1.0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  // 모니터 frame reveal: 줌아웃 시작과 함께 (1.5s)
-  const monitorReveal = interpolate(lf, [1.5 * fps, 2.5 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // 페이즈 fade — 부드러운 12 frame(0.4s)
+  const fadeIn  = interpolate(lf,   [0, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [end - 12, end], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opacity = fadeIn * fadeOut;
+
+  // "모니터링" 나레이션 시점부터 줌아웃 (lf=2.0s 시작, 1.8s 진행)
+  // cubic ease-in-out 로 뻑뻑함 제거
+  const z = Math.max(0, Math.min(1, (lf - 2.0 * fps) / (1.8 * fps)));
+  const zoomEase = z < 0.5 ? 4 * z * z * z : 1 - Math.pow(-2 * z + 2, 3) / 2;
+
+  const scale = interpolate(zoomEase, [0, 1], [1.08, 0.62]);
+  const monitorReveal = interpolate(zoomEase, [0.1, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <div style={{
@@ -144,43 +150,73 @@ const MonitorPhase: React.FC = () => {
       display: "flex", alignItems: "center", justifyContent: "center",
       opacity,
     }}>
-      {/* 모니터 frame (스크린이 줌아웃되면서 베젤이 보임) */}
-      <div style={{
-        position: "relative",
-        padding: 40,
-        borderRadius: 16,
-        background: "#1F2937",
-        border: `12px solid #111827`,
-        boxShadow: monitorReveal > 0 ? `0 30px 60px rgba(0,0,0,0.3), inset 0 0 30px rgba(0,0,0,0.4)` : "none",
-        transform: `scale(${interpolate(monitorReveal, [0, 1], [1.4, 0.85])})`,
-        transition: "all 0.3s",
-      }}>
-        {/* 모니터 화면 */}
+      <div style={{ position: "relative", transform: `scale(${scale})`, transformOrigin: "center" }}>
+        {/* 모니터 본체 (베젤) — 상/좌/우 24px, 하단 44px 로 모니터 특징 강조 */}
         <div style={{
-          background: BRAND.colors.light.bg,
-          padding: "60px 80px",
-          borderRadius: 8,
-          textAlign: "center",
-          minWidth: 1100,
+          position: "relative",
+          padding: `${monitorReveal * 24}px ${monitorReveal * 26}px ${monitorReveal * 44}px`,
+          borderRadius: `${monitorReveal * 18}px`,
+          background: `rgba(28, 32, 40, ${monitorReveal})`,
+          boxShadow: monitorReveal > 0.3
+            ? `0 ${monitorReveal * 45}px ${monitorReveal * 90}px rgba(0,0,0,0.35), inset 0 2px 4px rgba(255,255,255,0.06)`
+            : "none",
+          border: `${monitorReveal * 2}px solid rgba(10, 12, 16, ${monitorReveal})`,
         }}>
-          <div style={{ fontSize: 60, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1, marginBottom: 28 }}>
-            <span style={{ color: BRAND.colors.primary }}>쉐막</span>은 이런 궁금증을
-          </div>
-          <div style={{ fontSize: 56, fontWeight: 700, color: BRAND.colors.light.text }}>
-            <span style={{ color: BRAND.colors.accentWarm }}>늘 모니터링</span>하며 답을 제안합니다.
-          </div>
-        </div>
-        {/* 모니터 받침대 (scale 후 등장) */}
-        {monitorReveal > 0.5 && (
+          {/* 스크린 — 풀화면 → 모니터 내부로 */}
           <div style={{
-            position: "absolute", left: "50%", top: "100%",
-            transform: "translateX(-50%)",
-            opacity: (monitorReveal - 0.5) * 2,
+            background: BRAND.colors.light.bg,
+            padding: "64px 88px",
+            borderRadius: `${monitorReveal * 6}px`,
+            textAlign: "center",
+            minWidth: 1120,
+            position: "relative",
           }}>
-            <div style={{ width: 120, height: 16, background: "#1F2937", borderRadius: 4 }}/>
-            <div style={{ width: 200, height: 8, background: "#111827", borderRadius: 4, marginTop: 4 }}/>
+            <div style={{ fontSize: 60, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1, marginBottom: 28 }}>
+              <span style={{ color: BRAND.colors.primary }}>쉐막</span>은 이런 궁금증을
+            </div>
+            <div style={{ fontSize: 56, fontWeight: 700, color: BRAND.colors.light.text }}>
+              <span style={{ color: BRAND.colors.accentWarm }}>늘 모니터링</span>하며 답을 제안합니다.
+            </div>
           </div>
-        )}
+          {/* 전원 LED (오른쪽 하단 베젤에) */}
+          <div style={{
+            position: "absolute",
+            right: `${monitorReveal * 36}px`, bottom: `${monitorReveal * 14}px`,
+            width: 6, height: 6, borderRadius: 3,
+            background: BRAND.colors.primary,
+            opacity: monitorReveal,
+            boxShadow: `0 0 ${monitorReveal * 8}px ${BRAND.colors.primary}`,
+          }}/>
+          {/* 브랜드 로고 자리 (하단 베젤 중앙) */}
+          <div style={{
+            position: "absolute",
+            left: "50%", bottom: `${monitorReveal * 14}px`,
+            transform: "translateX(-50%)",
+            fontSize: 10, color: "rgba(255,255,255,0.35)", letterSpacing: 2,
+            opacity: monitorReveal,
+          }}>SHEMAK</div>
+        </div>
+        {/* 받침대: neck(기둥) + base(받침) */}
+        <div style={{
+          position: "absolute", left: "50%", top: "100%",
+          transform: `translateX(-50%) translateY(${interpolate(monitorReveal, [0, 1], [-24, 0])}px)`,
+          opacity: monitorReveal,
+          display: "flex", flexDirection: "column", alignItems: "center",
+        }}>
+          {/* neck (사다리꼴) */}
+          <div style={{
+            width: 90, height: 44,
+            background: "linear-gradient(180deg, #2A3040, #1A1D26)",
+            clipPath: "polygon(30% 0, 70% 0, 85% 100%, 15% 100%)",
+          }}/>
+          {/* base (넓고 얇은 받침) */}
+          <div style={{
+            width: 280, height: 16,
+            background: "linear-gradient(180deg, #2A3040, #15171D)",
+            borderRadius: "4px 4px 2px 2px",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+          }}/>
+        </div>
       </div>
     </div>
   );

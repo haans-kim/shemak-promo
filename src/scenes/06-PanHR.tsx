@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Sequence, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
@@ -38,16 +38,21 @@ const usePhase = (phase: { start: number; end: number }) => {
   const { fps } = useVideoConfig();
   const start = phase.start * fps;
   const end = phase.end * fps;
-  const inP = interpolate(frame, [start, start + 6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const outP = interpolate(frame, [end - 6, end], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // v11 #6: M1→M3 전환 빠름 피드백 → fade 6 → 14 프레임 (0.47s)
+  const inP = interpolate(frame, [start, start + 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const outP = interpolate(frame, [end - 14, end], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return { opacity: inP * outP };
 };
 
+// v11: Sequence 래핑으로 phase 시작과 비디오 재생 시작 동기화
 const VideoOnly: React.FC<{ phase: { start: number; end: number; video: string; videoStartFrom: number } }> = ({ phase }) => {
   const { opacity } = usePhase(phase);
+  const { fps } = useVideoConfig();
   return (
     <AbsoluteFill style={{ opacity }}>
-      <FullVideo video={phase.video} videoStartFrom={phase.videoStartFrom} />
+      <Sequence from={Math.round(phase.start * fps)}>
+        <FullVideo video={phase.video} videoStartFrom={phase.videoStartFrom} />
+      </Sequence>
     </AbsoluteFill>
   );
 };

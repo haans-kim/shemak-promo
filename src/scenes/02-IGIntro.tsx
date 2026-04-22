@@ -41,7 +41,8 @@ const HistoryPhase: React.FC = () => {
   const start = IP_FRAME_AT * fps;
   const end = AI_AT * fps;
   const reveal = spring({ frame: frame - start, fps, config: { damping: 18, stiffness: 110 } });
-  const fadeOut = interpolate(frame, [end, end + 15], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // v11 #2: fadeOut 15 → 8 프레임 (전환 빠르게)
+  const fadeOut = interpolate(frame, [end - 4, end + 8], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
   return (
     <div style={{
@@ -78,8 +79,8 @@ const AIPhase: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = AI_AT * fps;
   const end = REVEAL_AT * fps;
-  // 1단계: "IP 위에" 부분 (4.4~7.0s) — IP 텍스트만 보임
-  const ipReveal = spring({ frame: frame - start, fps, config: { damping: 18, stiffness: 110 } });
+  // v11 #2: AI 진입 빠르게 — spring stiffness 110 → 160
+  const ipReveal = spring({ frame: frame - start, fps, config: { damping: 16, stiffness: 160 } });
   const fadeOut = interpolate(frame, [end - 5, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = ipReveal * fadeOut;
 

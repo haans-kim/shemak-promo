@@ -9,17 +9,17 @@ import { BRAND } from "../lib/brand";
 // 02:33: CountUp sync 맞춤
 // 02:48: 외양간 callback (아이콘 + 불빛 + 숫자들 모여듦)
 
-// v10: "HR 컨설팅" 화면 전환 빠르게 (02:35 피드백) → CARDS 약간 앞당김
+// v11 #7,#8: 02:51/02:54 카드 전환 너무 빠름 → 카드 등장 간격 + CountUp 느리게
 const HEAD_AT = 0.3;
-const CARDS_START = 7.5;       // 8.3 → 7.5 (HR 컨설팅 카드 빠르게 등장)
-const CARDS_SPACING = 2.3;     // 4×2.3 = 9.2s (16.7s까지)
-const CLOSER_AT = 17.0;        // 17.5 → 17.0 (외양간 애니메이션 시간 확보)
+const CARDS_START = 7.5;
+const CARDS_SPACING = 2.4;     // 2.3 → 2.4 (조금 여유 — CLOSER_AT 손대지 않는 선)
+const CLOSER_AT = 17.0;
 
 const STATS = [
-  { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.1 },
-  { caption: "의식 설문 분석",      value: 100,   suffix: "만+ 명", countDur: 0.9 },
-  { caption: "HR 데이터베이스",    value: 2400,  suffix: "만 건",  countDur: 1.2 },
-  { caption: "AI 특허 출원",       value: 3,     suffix: "건",     countDur: 0.7 },
+  { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.7 },  // 1.1 → 1.7
+  { caption: "의식 설문 분석",      value: 100,   suffix: "만+ 명", countDur: 1.4 },  // 0.9 → 1.4
+  { caption: "HR 데이터베이스",    value: 2400,  suffix: "만 건",  countDur: 1.8 },  // 1.2 → 1.8
+  { caption: "AI 특허 출원",       value: 3,     suffix: "건",     countDur: 1.0 },  // 0.7 → 1.0
 ];
 
 export const FoundationScene: React.FC = () => {
@@ -121,8 +121,9 @@ interface StatProps {
 
 const StatCard: React.FC<StatProps> = ({ caption, value, suffix, countDur, startAt }) => {
   const { frame, fps } = useTiming();
-  const revealFrame = startAt * fps - 8;
-  const reveal = spring({ frame: frame - revealFrame, fps, config: { damping: 18, stiffness: 130, mass: 0.8 } });
+  const revealFrame = startAt * fps - 10;
+  // v11: spring 부드럽게 — stiffness 130 → 90, damping 22 (pop이 아닌 ease-in)
+  const reveal = spring({ frame: frame - revealFrame, fps, config: { damping: 22, stiffness: 90, mass: 1 } });
   const translateY = interpolate(reveal, [0, 1], [24, 0]);
   return (
     <div style={{
