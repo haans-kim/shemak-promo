@@ -11,21 +11,24 @@ import { BRAND } from "../lib/brand";
 // 35~47s   팀장 — phase17_team_skill
 
 // v9.1 실제 TTS silence 기반 sync
+// v18 #4: 팀장 에이전트 나레이션 시점 = 절대 01:27.0 = 03-local 39.85s (USER)
+//   → HR 임원 phase 연장 (36.0 → 39.85), 팀장 phase 단축 (36.0→39.85 시작)
 // silences: @13.53 (오프너 종료) / @24.46 (CEO 종료) / @33.62/35.77 (HR 임원 종료) / @46.79 (팀장 종료)
 const PHASES = {
-  OPENER:    { start: 0.2,  end: 13.5 },                                   // 8.5 → 13.5 (오프너 narration 풀 커버)
-  CEO_VIEW:  { start: 13.5, end: 24.5, video: "videos/phase13_ceo_overview.webm", videoStartFrom: 0 },
-  HR_HEAD:   { start: 24.5, end: 36.0, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },
-  TEAM_LEAD: { start: 36.0, end: 47.05, video: "videos/phase17_team_skill.webm", videoStartFrom: 0 },
+  OPENER:    { start: 0.2,  end: 13.5 },
+  CEO_VIEW:  { start: 13.5, end: 24.5,  video: "videos/phase13_ceo_overview.webm",    videoStartFrom: 0 },
+  HR_HEAD:   { start: 24.5, end: 39.85, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },  // +3.85s (앞 장면 연장)
+  TEAM_LEAD: { start: 39.85, end: 47.05, video: "videos/phase17_team_skill.webm",      videoStartFrom: 0 }, // 36.0 → 39.85
 };
 
 // v9.1: cue 타이밍도 실제 narration에 맞춰 재조정
+// v18 #4: 팀장 cue 시작만 +3.85s shift (나머지 HR_HEAD cues 2개는 종료 35.5로 그대로 → HR_HEAD 연장 구간은 자막 없이 영상만)
 const CUES: Cue[] = [
   { start: 14.0, end: 19.0, text: "경영진 AI — 전사 목표·KPI 모니터링" },
   { start: 19.3, end: 24.0, text: "연말 실적 추정 → 수정해야 할 과제 제시" },
   { start: 25.0, end: 29.5, text: "HR 임원 AI — 보상 인상률 최적 배분" },
   { start: 30.0, end: 35.5, text: "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
-  { start: 36.5, end: 46.0, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
+  { start: 40.35, end: 46.5, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
 ];
 
 export const HRAgentScene: React.FC = () => {

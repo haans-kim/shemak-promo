@@ -2,18 +2,21 @@ import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig }
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 02 IGIntro (15.41s) — v16: 새 TTS "오로지 인사 조직 컨설팅에만 집중" 반영
+// 02 IGIntro (15.41s) — v16 narration + v18 피드백 1334#1,#2 (USER-SPECIFIED timestamps)
 // 새 narration (-35dB silence):
 //   0.31~4.30  : "인싸이트그룹은 오로지 인사 조직 컨설팅에만 집중해 왔습니다"
-//   4.58~8.22  : "다양한 컨설팅을 통해 ~ AI 서비스를 더했습니다"
-//   8.74~10.53 : "인싸이트그룹이 만든 HR AI"
-//   11.26~     : "쉐막입니다"
+//   4.58~(9.26): "다양한 컨설팅을 통해 ~ AI 서비스를 더했습니다" (USER: 00:41.0 = 9.26s "다" 발음 끝)
+//   11.26      : "인싸이트그룹이 만든" — 로고만 (USER: 00:43.0)
+//   12.26      : "HR AI" 추가 (USER: 00:44.0)
+//   13.26      : "쉐막입니다" 쉐막 등장 (USER: 00:45.0)
 
 const IP_FRAME_AT = 0.0;
-const AI_AT = 4.58;       // 8.7 → 4.58 (HistoryPhase 짧아짐)
-const IMPACT_AT = 6.78;   // 10.7 → 6.78 ("AI 서비스" 쾅 효과 시점)
-const REVEAL_AT = 8.74;   // 12.0 → 8.74 (BrandReveal "HR AI" 등장)
-const SHEMAK_AT = 11.26;  // 14.5 → 11.26 (쉐막 텍스트 등장)
+const AI_AT = 4.58;        // 유지 ("AI 서비스" 쾅 효과 시점)
+const IMPACT_AT = 6.78;    // 유지
+const REVEAL_AT = 9.26;    // 8.74 → 9.26 (USER: AI 문장 "다" 끝 timestamp)
+const LOGO_AT = 11.26;     // 신설: "인싸이트그룹이 만든" 로고 등장 (USER)
+const HRAI_AT = 12.26;     // 신설: "HR AI" 텍스트 추가 (USER)
+const SHEMAK_AT = 13.26;   // 11.26 → 13.26 (USER: "쉐막입니다")
 
 export const IGIntroScene: React.FC = () => {
   return (
@@ -77,7 +80,8 @@ const AIPhase: React.FC = () => {
   const end = REVEAL_AT * fps;
   // v11 #2: AI 진입 빠르게 — spring stiffness 110 → 160
   const ipReveal = spring({ frame: frame - start, fps, config: { damping: 16, stiffness: 160 } });
-  const fadeOut = interpolate(frame, [end - 5, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // v18 #1: 사용자가 9.26까지 "AI 서비스" 화면 유지 원함 → fadeOut 시작을 end-5 → end로 변경
+  const fadeOut = interpolate(frame, [end, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = ipReveal * fadeOut;
 
   // 2단계: "AI 서비스를 더했습니다" — 쾅 효과
@@ -126,15 +130,14 @@ const AIPhase: React.FC = () => {
   );
 };
 
-// 한 장면에 "INSIGHT GROUP이 만든 HR AI"가 먼저 보이고, 같은 자리에 "쉐막"이 등장
-// (scale/illuminate 효과 제거, opacity로 깔끔하게)
+// v18 #2: 3단 순차 등장 — 로고(LOGO_AT) → HR AI(HRAI_AT) → 쉐막(SHEMAK_AT)
+// 각 요소 독립 spring/opacity. wrapper는 REVEAL_AT에 초기 fade-in (배경 리셋용).
 const BrandRevealCombined: React.FC = () => {
   const { frame, fps } = useTiming();
-  const start = REVEAL_AT * fps;
-  const reveal = spring({ frame: frame - start, fps, config: { damping: 16, stiffness: 110 } });
-  const opacity = reveal;
+  const wrapperReveal = spring({ frame: frame - REVEAL_AT * fps, fps, config: { damping: 16, stiffness: 110 } });
 
-  // "쉐막" — 같은 화면 안에서 단순 등장 (illuminate/glow X)
+  const logoReveal = spring({ frame: frame - LOGO_AT * fps, fps, config: { damping: 20, stiffness: 120 } });
+  const hraiReveal = spring({ frame: frame - HRAI_AT * fps, fps, config: { damping: 20, stiffness: 120 } });
   const shemakStart = SHEMAK_AT * fps;
   const shemakOpacity = interpolate(frame, [shemakStart, shemakStart + 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const flashOpacity = interpolate(frame, [shemakStart, shemakStart + 4, shemakStart + 14], [0, 0.5, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -148,7 +151,7 @@ const BrandRevealCombined: React.FC = () => {
       alignItems: "center",
       justifyContent: "center",
       gap: 32,
-      opacity,
+      opacity: wrapperReveal,
       textAlign: "center",
     }}>
       {/* 쉐막 등장 시 한순간 flash */}
@@ -159,11 +162,14 @@ const BrandRevealCombined: React.FC = () => {
         pointerEvents: "none",
       }}/>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-        <Img src={staticFile("images/insight-group-logo-text-v2.png")} style={{ height: 140, width: "auto" }} />
-        <div style={{ fontSize: 72, fontWeight: 700, color: BRAND.colors.dark.text, letterSpacing: -1, lineHeight: 1 }}>
+        {/* 1단: "인싸이트그룹이 만든" — 로고만 */}
+        <Img src={staticFile("images/insight-group-logo-text-v2.png")} style={{ height: 140, width: "auto", opacity: logoReveal }} />
+        {/* 2단: "HR AI" 나레이션 — 텍스트 추가 */}
+        <div style={{ fontSize: 72, fontWeight: 700, color: BRAND.colors.dark.text, letterSpacing: -1, lineHeight: 1, opacity: hraiReveal }}>
           HR AI
         </div>
       </div>
+      {/* 3단: "쉐막입니다" — 쉐막 대문자 */}
       <div style={{
         fontSize: 200,
         fontWeight: 800,

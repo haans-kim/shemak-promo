@@ -168,11 +168,21 @@ const Closer: React.FC = () => {
 
   return (
     <div style={{ position: "absolute", inset: 0, opacity: reveal }}>
-      {/* 외양간 실사 PNG + glow B */}
+      {/* 외양간 실사 PNG + glow B (상시 breathe) */}
       <div style={{
         position: "absolute", left: "50%", top: "50%",
         transform: "translate(-50%, -50%)",
       }}>
+        {/* v18 #5: "외양간을 만듭니다" 텍스트 등장 시점 glow 피크 burst */}
+        <div style={{
+          position: "absolute", inset: "-30%",
+          pointerEvents: "none",
+          background: "radial-gradient(ellipse at center, rgba(245,158,11,0.85) 0%, rgba(245,158,11,0.40) 35%, transparent 70%)",
+          filter: "blur(40px)",
+          opacity: textReveal * 0.9,
+          transform: `scale(${0.9 + textReveal * 0.3})`,
+          zIndex: 0,
+        }}/>
         <BarnImage width={620} startAt={CLOSER_AT + 0.3} entrance="fade-scale" glow />
       </div>
 
