@@ -12,7 +12,7 @@ export interface Cue {
 
 interface Props {
   cues: Cue[];
-  /** 폰트 크기 (px). 기본 32. */
+  /** 폰트 크기 (px). 기본 44. */
   fontSize?: number;
   /** 하단에서 떨어진 거리 (px). 기본 80. */
   bottom?: number;
@@ -23,7 +23,7 @@ interface Props {
  * 각 cue는 start~end 동안 보이며 양 끝에 0.2s fade.
  * 부모 가로 80% 박스 안에서 줄바꿈.
  */
-export const Subtitle: React.FC<Props> = ({ cues, fontSize = 32, bottom = 80 }) => {
+export const Subtitle: React.FC<Props> = ({ cues, fontSize = 44, bottom = 80 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
@@ -56,11 +56,11 @@ export const Subtitle: React.FC<Props> = ({ cues, fontSize = 32, bottom = 80 }) 
         style={{
           whiteSpace: "pre-line",
           fontSize,
-          fontWeight: 700,
-          color: "#FFFFFF",
+          fontWeight: 800,             // v16: 700 → 800 (가독성)
+          color: "#000000",            // v16: 흰 → 검정 단색 (사용자 선택 B)
           lineHeight: 1.4,
           letterSpacing: -0.3,
-          textShadow: "0 2px 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.7)",
+          textShadow: "0 0 8px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,0.8)", // 대시보드 배경 대비용 흰 글로우 미세하게
           wordBreak: "keep-all",
         }}
       >

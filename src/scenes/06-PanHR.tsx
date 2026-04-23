@@ -28,7 +28,7 @@ export const PanHRScene: React.FC = () => {
       <VideoOnly phase={PHASES.M0_OPENER} />
       <VideoOnly phase={PHASES.M1_PLAN} />
       <VideoOnly phase={PHASES.M3_SKILL} />
-      <Subtitle cues={CUES} fontSize={32} bottom={70} />
+      <Subtitle cues={CUES} fontSize={44} bottom={70} />
     </SceneFrame>
   );
 };

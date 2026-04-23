@@ -39,7 +39,7 @@ export const OpticViewScene: React.FC = () => {
       <VideoOnly phase={PHASES.RISK} />
       <VideoOnly phase={PHASES.WHATIF} />
       <TransitionPhase />
-      <Subtitle cues={CUES} fontSize={32} bottom={70} />
+      <Subtitle cues={CUES} fontSize={44} bottom={70} />
     </SceneFrame>
   );
 };

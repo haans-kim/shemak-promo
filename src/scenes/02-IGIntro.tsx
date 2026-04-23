@@ -1,15 +1,19 @@
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
-import { CountUp } from "../components/CountUp";
 import { BRAND } from "../lib/brand";
 
-// 02 IGIntro (16.43s) — v10: "다양한 컨설팅" 화면 전환 빠르게 (00:42 피드백)
-// silences: @9.50 (20년 설명 종료) / @11.91 (솔루션+AI 종료) / @14.97 (HR AI 종료)
+// 02 IGIntro (15.41s) — v16: 새 TTS "오로지 인사 조직 컨설팅에만 집중" 반영
+// 새 narration (-35dB silence):
+//   0.31~4.30  : "인싸이트그룹은 오로지 인사 조직 컨설팅에만 집중해 왔습니다"
+//   4.58~8.22  : "다양한 컨설팅을 통해 ~ AI 서비스를 더했습니다"
+//   8.74~10.53 : "인싸이트그룹이 만든 HR AI"
+//   11.26~     : "쉐막입니다"
 
 const IP_FRAME_AT = 0.0;
-const AI_AT = 8.7;      // 9.5 → 8.7 (narration 시작 직전 preview, 화면 전환 빠르게)
-const REVEAL_AT = 12.0;
-const SHEMAK_AT = 14.5;
+const AI_AT = 4.58;       // 8.7 → 4.58 (HistoryPhase 짧아짐)
+const IMPACT_AT = 6.78;   // 10.7 → 6.78 ("AI 서비스" 쾅 효과 시점)
+const REVEAL_AT = 8.74;   // 12.0 → 8.74 (BrandReveal "HR AI" 등장)
+const SHEMAK_AT = 11.26;  // 14.5 → 11.26 (쉐막 텍스트 등장)
 
 export const IGIntroScene: React.FC = () => {
   return (
@@ -57,18 +61,9 @@ const HistoryPhase: React.FC = () => {
       padding: "0 140px",
       textAlign: "center",
     }}>
-      <div style={{ fontSize: 22, color: BRAND.colors.accent, letterSpacing: 5, fontWeight: 600 }}>
-        INSIGHT GROUP
-      </div>
-      <div style={{ fontSize: 36, color: BRAND.colors.dark.textMuted, lineHeight: 1.6 }}>
-        지난
-      </div>
-      <div style={{ fontSize: 160, fontWeight: 800, color: BRAND.colors.accentWarm, letterSpacing: -4, lineHeight: 1, display: "flex", alignItems: "baseline", gap: 8 }}>
-        <CountUp from={0} to={20} durationInSeconds={1.8} startAtSeconds={0.6} />
-        <span style={{ fontSize: 100, fontWeight: 700 }}>년</span>
-      </div>
-      <div style={{ fontSize: 32, color: BRAND.colors.dark.text, fontWeight: 500, lineHeight: 1.5 }}>
-        인싸이트그룹은 HR을 <span style={{ color: BRAND.colors.primary, fontWeight: 700 }}>전문적으로 컨설팅</span>해 왔습니다.
+      <Img src={staticFile("images/insight-group-logo.png")} style={{ height: 52, width: "auto", marginBottom: 4 }} />
+      <div style={{ fontSize: 48, fontWeight: 700, color: BRAND.colors.dark.text, lineHeight: 1.5, maxWidth: 1400 }}>
+        인싸이트그룹은 <span style={{ color: BRAND.colors.accentWarm, fontWeight: 800 }}>오로지 인사 조직 컨설팅</span>에만 <span style={{ color: BRAND.colors.primary, fontWeight: 800 }}>집중</span>해 왔습니다.
       </div>
     </div>
   );
@@ -84,8 +79,8 @@ const AIPhase: React.FC = () => {
   const fadeOut = interpolate(frame, [end - 5, end + 10], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = ipReveal * fadeOut;
 
-  // 2단계: "AI 서비스를 더했습니다" — 쾅 효과 (solution 자막 뜬 직후 임팩트)
-  const impactStart = 10.7;
+  // 2단계: "AI 서비스를 더했습니다" — 쾅 효과
+  const impactStart = IMPACT_AT;  // v16: 10.7 → 6.78 (narration "AI 서비스" 시점)
   const aiReveal = interpolate(frame, [impactStart * fps, impactStart * fps + 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   // 더 강한 flash (radial burst 2초 유지)
   const flashOpacity = interpolate(frame, [impactStart * fps - 2, impactStart * fps + 5, impactStart * fps + 25], [0, 0.85, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -162,8 +157,11 @@ const BrandRevealCombined: React.FC = () => {
         opacity: flashOpacity,
         pointerEvents: "none",
       }}/>
-      <div style={{ fontSize: 44, fontWeight: 600, color: BRAND.colors.dark.textMuted, letterSpacing: -0.5, lineHeight: 1.4 }}>
-        <span style={{ color: BRAND.colors.accent, fontWeight: 800 }}>INSIGHT GROUP</span>이 만든 <span style={{ color: BRAND.colors.dark.text, fontWeight: 800 }}>HR AI</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+        <Img src={staticFile("images/insight-group-logo.png")} style={{ height: 70, width: "auto" }} />
+        <div style={{ fontSize: 44, fontWeight: 600, color: BRAND.colors.dark.textMuted, letterSpacing: -0.5, lineHeight: 1.4 }}>
+          이 만든 <span style={{ color: BRAND.colors.dark.text, fontWeight: 800 }}>HR AI</span>
+        </div>
       </div>
       <div style={{
         fontSize: 220,

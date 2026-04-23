@@ -35,7 +35,7 @@ export const HRAgentScene: React.FC = () => {
       <CEOPhase />
       <HRHeadPhase />
       <TeamLeadPhase />
-      <Subtitle cues={CUES} fontSize={32} bottom={70} />
+      <Subtitle cues={CUES} fontSize={44} bottom={70} />
     </SceneFrame>
   );
 };

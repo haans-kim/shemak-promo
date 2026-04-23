@@ -15,7 +15,7 @@ export interface SectionMeta {
 
 export const SECTIONS: Record<SectionId, SectionMeta> = {
   "01": { id: "01", slug: "01-intro",      title: "Intro",      estimatedSeconds: 31.74, audioFile: "audio/01-intro.mp3" },
-  "02": { id: "02", slug: "02-ig-intro",   title: "IG 소개",    estimatedSeconds: 16.43, audioFile: "audio/02-ig-intro.mp3" },
+  "02": { id: "02", slug: "02-ig-intro",   title: "IG 소개",    estimatedSeconds: 15.41, audioFile: "audio/02-ig-intro.mp3" },
   "03": { id: "03", slug: "03-hr-agent",   title: "HR Agent",   estimatedSeconds: 47.05, audioFile: "audio/03-hr-agent.mp3" },
   "04": { id: "04", slug: "04-bridge",     title: "Bridge",     estimatedSeconds: 4.96,  audioFile: "audio/04-bridge.mp3" },
   "05": { id: "05", slug: "05-optic-view", title: "Optic",      estimatedSeconds: 30.98, audioFile: "audio/05-optic-view.mp3" },
