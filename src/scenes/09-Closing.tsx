@@ -124,9 +124,9 @@ const BrandBlock: React.FC = () => {
         데이터로, <span style={{ color: BRAND.colors.primary }}>조직을 해석합니다</span>
       </div>
       <div style={{
-        display: "flex", alignItems: "center", gap: 24, opacity: brandReveal,
+        display: "flex", alignItems: "center", gap: 28, opacity: brandReveal,
       }}>
-        <Img src={staticFile("images/insight-group-logo.png")} style={{ height: 50, width: "auto" }} />
+        <Img src={staticFile("images/insight-group-logo-text-v2.png")} style={{ height: 80, width: "auto" }} />
         <div style={{ fontSize: 52, fontWeight: 800, letterSpacing: 2, color: BRAND.colors.light.text }}>
           쉐막
         </div>

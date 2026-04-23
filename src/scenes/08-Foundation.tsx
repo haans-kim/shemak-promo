@@ -1,7 +1,7 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
 import { CountUp } from "../components/CountUp";
-import { Barn } from "../components/Barn";
+import { BarnImage } from "../components/BarnImage";
 import { BRAND } from "../lib/brand";
 
 // 08 Foundation (20.11s) — v9 피드백 반영
@@ -155,73 +155,25 @@ const StatCard: React.FC<StatProps> = ({ caption, value, suffix, countDur, start
   );
 };
 
-// v11-final: "뽕!" 제거 → 울타리 6막대 순차 드롭 + 🐂 (01과 통일)
+// v17: 위험 키워드 제거, 실사 외양간 PNG + 주황 glow pulse로 단순화
 // 타이밍 (CLOSER 17.0~20.1, 약 3.1s):
-//   0~0.3s: 위험 키워드 fadeIn
-//   0.3~1.8s: 울타리 6막대 순차 드롭 (위험 키워드는 동시에 천천히 fadeOut)
-//   1.8~2.2s: 가로보 + 🐂 등장
-//   2.2~3.1s: 마무리 텍스트
+//   0~1.0s: 외양간 fade-scale entrance + glow breathe 시작
+//   1.2s~ : 마무리 텍스트 등장
 const Closer: React.FC = () => {
   const { frame, fps } = useTiming();
   const start = CLOSER_AT * fps;
   const lf = frame - start;
   const reveal = spring({ frame: lf, fps, config: { damping: 20, stiffness: 100 } });
-
-  // 위험 키워드 (배경에 흐릿하게 떠있다가 fadeOut)
-  const riskFadeOut = interpolate(lf, [0.6 * fps, 1.6 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const textReveal = spring({ frame: lf - 2.2 * fps, fps, config: { damping: 20, stiffness: 110 } });
-
-  const RISKS = [
-    { txt: "이탈",     baseX: -380, baseY: -180 },
-    { txt: "번아웃",   baseX:  380, baseY: -200 },
-    { txt: "퇴직",     baseX: -440, baseY:   30 },
-    { txt: "갈등",     baseX:  440, baseY:   50 },
-    { txt: "스트레스", baseX: -340, baseY:  220 },
-    { txt: "불만",     baseX:  340, baseY:  240 },
-  ];
+  const textReveal = spring({ frame: lf - 1.2 * fps, fps, config: { damping: 20, stiffness: 110 } });
 
   return (
     <div style={{ position: "absolute", inset: 0, opacity: reveal }}>
-      {/* 위험 키워드 — 처음엔 떠있다가 울타리가 세워지면서 사라짐 */}
-      {RISKS.map((r, i) => {
-        const t = lf / fps;
-        const floatX = r.baseX + Math.sin(t * 1.5 + i) * 12;
-        const floatY = r.baseY + Math.cos(t * 1.2 + i * 0.7) * 10;
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: `calc(50% + ${floatX}px)`,
-              top: `calc(50% + ${floatY}px)`,
-              transform: "translate(-50%, -50%)",
-              opacity: riskFadeOut,
-              padding: "10px 22px",
-              background: "#FEE2E2",
-              border: "3px solid #DC2626",
-              borderRadius: 24,
-              fontSize: 28, fontWeight: 800, color: "#DC2626",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {r.txt}
-          </div>
-        );
-      })}
-
-      {/* 외양간 — 심플 버전 (울타리 순차 드롭 + 🐂) */}
+      {/* 외양간 실사 PNG + glow B */}
       <div style={{
         position: "absolute", left: "50%", top: "50%",
         transform: "translate(-50%, -50%)",
       }}>
-        <Barn
-          width={580}
-          startAt={CLOSER_AT + 0.3}
-          cowAt={1.6}
-          plankDelays={[0.1, 0.35, 0.6, 0.85, 1.1, 1.35]}
-          showRoof={true}
-          glow={interpolate(lf, [1.8 * fps, 2.4 * fps], [0, 0.6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}
-        />
+        <BarnImage width={620} startAt={CLOSER_AT + 0.3} entrance="fade-scale" glow />
       </div>
 
       {/* 마무리 텍스트 */}

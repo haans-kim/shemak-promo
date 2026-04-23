@@ -1,6 +1,6 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { SceneFrame } from "../components/SceneFrame";
-import { Barn } from "../components/Barn";
+import { BarnImage } from "../components/BarnImage";
 import { BRAND } from "../lib/brand";
 
 // 01 Intro (31.74s) — 2026-04-21 최종
@@ -248,16 +248,8 @@ const BarnStoryPhase: React.FC = () => {
       display: "flex", alignItems: "center", justifyContent: "center",
       flexDirection: "column", gap: 24, opacity, padding: "0 140px", textAlign: "center",
     }}>
-      {/* 외양간 — v11-final: 심플 울타리 6막대 순차 드롭 + 🐂 (갈색 황소) */}
-      <div style={{ opacity: interpolate(lf, [0, 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
-        <Barn
-          width={520}
-          startAt={BARN_AT + 0.3}
-          cowAt={2.2}
-          plankDelays={[0.3, 0.55, 0.8, 1.05, 1.3, 1.55]}
-          showRoof={true}
-        />
-      </div>
+      {/* 외양간 — v17: 실사 PNG로 교체, drop entrance */}
+      <BarnImage width={600} startAt={BARN_AT + 0.3} entrance="drop" />
       {/* 메인 텍스트 */}
       <div style={{
         fontSize: 52, fontWeight: 800, color: BRAND.colors.light.text, letterSpacing: -1,

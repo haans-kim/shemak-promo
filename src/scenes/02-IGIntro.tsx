@@ -61,9 +61,10 @@ const HistoryPhase: React.FC = () => {
       padding: "0 140px",
       textAlign: "center",
     }}>
-      <Img src={staticFile("images/insight-group-logo.png")} style={{ height: 52, width: "auto", marginBottom: 4 }} />
-      <div style={{ fontSize: 48, fontWeight: 700, color: BRAND.colors.dark.text, lineHeight: 1.5, maxWidth: 1400 }}>
-        인싸이트그룹은 <span style={{ color: BRAND.colors.accentWarm, fontWeight: 800 }}>오로지 인사 조직 컨설팅</span>에만 <span style={{ color: BRAND.colors.primary, fontWeight: 800 }}>집중</span>해 왔습니다.
+      <Img src={staticFile("images/insight-group-logo-text-v2.png")} style={{ height: 100, width: "auto" }} />
+      <div style={{ fontSize: 54, fontWeight: 700, color: BRAND.colors.dark.text, lineHeight: 1.4, maxWidth: 1400 }}>
+        <div><span style={{ color: BRAND.colors.accentWarm, fontWeight: 800 }}>오로지 인사 조직 컨설팅</span>에만</div>
+        <div><span style={{ color: BRAND.colors.primary, fontWeight: 800 }}>집중</span>해 왔습니다</div>
       </div>
     </div>
   );
@@ -157,14 +158,14 @@ const BrandRevealCombined: React.FC = () => {
         opacity: flashOpacity,
         pointerEvents: "none",
       }}/>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-        <Img src={staticFile("images/insight-group-logo.png")} style={{ height: 70, width: "auto" }} />
-        <div style={{ fontSize: 44, fontWeight: 600, color: BRAND.colors.dark.textMuted, letterSpacing: -0.5, lineHeight: 1.4 }}>
-          이 만든 <span style={{ color: BRAND.colors.dark.text, fontWeight: 800 }}>HR AI</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+        <Img src={staticFile("images/insight-group-logo-text-v2.png")} style={{ height: 140, width: "auto" }} />
+        <div style={{ fontSize: 72, fontWeight: 700, color: BRAND.colors.dark.text, letterSpacing: -1, lineHeight: 1 }}>
+          HR AI
         </div>
       </div>
       <div style={{
-        fontSize: 220,
+        fontSize: 200,
         fontWeight: 800,
         color: BRAND.colors.dark.text,
         letterSpacing: -8,
