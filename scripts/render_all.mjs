@@ -13,7 +13,7 @@
 // 요구사항: ffmpeg (brew install ffmpeg / apt install ffmpeg / choco install ffmpeg)
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, symlinkSync, unlinkSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -22,7 +22,6 @@ const SECTIONS_FILE = resolve(ROOT, "src/lib/sections.ts");
 const SRC_DIR = resolve(ROOT, "src");
 const AUDIO_DIR = resolve(ROOT, "public/audio");
 const OUT_DIR = resolve(ROOT, "out/sections");
-const CONCAT_LIST = resolve(ROOT, "out/concat.txt");
 const pad = (n) => String(n).padStart(2, "0");
 const _now = new Date();
 const TS = `${_now.getFullYear()}${pad(_now.getMonth() + 1)}${pad(_now.getDate())}_${pad(_now.getHours())}${pad(_now.getMinutes())}`;
@@ -126,6 +125,32 @@ function renderSection(slug) {
   return out;
 }
 
+// v18+: Main.tsx의 TransitionSeries fade를 concat 단계에서도 반영하려면
+// ffmpeg xfade(video) + acrossfade(audio) 체인이 필요.
+// 단순 -c copy concat은 cut 경계가 hard — v18 "08→09 흰 화면" 피드백 대응.
+// FADE_FRAMES 는 Main.tsx의 TRANSITION_FRAMES 와 동일해야 함 (30fps 기준).
+const FADE_FRAMES = 15;
+const FPS = 30;
+const FADE_DURATION = FADE_FRAMES / FPS; // 0.5s
+
+function probeDuration(file) {
+  const r = spawnSync(
+    "ffprobe",
+    ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", file],
+    { encoding: "utf8" }
+  );
+  if (r.status !== 0) {
+    console.error(`[error] ffprobe 실패: ${file}`);
+    process.exit(r.status ?? 1);
+  }
+  const d = parseFloat(r.stdout.trim());
+  if (!Number.isFinite(d) || d <= 0) {
+    console.error(`[error] 잘못된 duration: ${file} → ${r.stdout}`);
+    process.exit(1);
+  }
+  return d;
+}
+
 function concatAll() {
   requireFfmpeg();
   const files = slugs.map((s) => resolve(OUT_DIR, `${s}.mp4`));
@@ -142,21 +167,55 @@ function concatAll() {
     console.error("먼저 `npm run render:sections` 로 렌더하세요.");
     process.exit(1);
   }
-  // ffmpeg concat demuxer는 Windows에서 backslash 경로를 escape로 해석해 깨짐.
-  // forward slash로 정규화하면 모든 플랫폼에서 안전.
-  const list = files
-    .map((f) => `file '${f.replace(/\\/g, "/").replace(/'/g, "'\\''")}'`)
-    .join("\n");
-  writeFileSync(CONCAT_LIST, list + "\n");
-  console.log(`[concat] ${files.length}개 섹션 → ${FINAL}`);
+
+  // 각 섹션 실제 duration 측정 (sections.ts estimatedSeconds 와 frame 반올림 차이 흡수)
+  const durations = files.map(probeDuration);
+  console.log(`[concat] ${files.length}개 섹션 xfade(${FADE_DURATION}s) → ${FINAL}`);
+  durations.forEach((d, i) => console.log(`  [${slugs[i]}] ${d.toFixed(3)}s`));
+
+  // filter_complex 구성:
+  //   xfade(video): 각 경계에서 offset=현재 누적길이-FADE, duration=FADE
+  //   acrossfade(audio): 동일 duration 의 crossfade
+  const vChain = [];
+  const aChain = [];
+  let cumulative = durations[0]; // 첫 xfade 기준 누적 길이
+  let vPrev = "[0:v]";
+  let aPrev = "[0:a]";
+  for (let i = 1; i < files.length; i++) {
+    const isLast = i === files.length - 1;
+    const vOut = isLast ? "[vout]" : `[v${i}]`;
+    const aOut = isLast ? "[aout]" : `[a${i}]`;
+    const offset = cumulative - FADE_DURATION;
+    vChain.push(`${vPrev}[${i}:v]xfade=transition=fade:duration=${FADE_DURATION}:offset=${offset.toFixed(4)}${vOut}`);
+    aChain.push(`${aPrev}[${i}:a]acrossfade=d=${FADE_DURATION}${aOut}`);
+    vPrev = vOut;
+    aPrev = aOut;
+    cumulative = cumulative + durations[i] - FADE_DURATION;
+  }
+  const filterComplex = [...vChain, ...aChain].join(";");
+
+  const inputs = files.flatMap((f) => ["-i", f]);
   const r = spawnSync(
     "ffmpeg",
-    ["-y", "-f", "concat", "-safe", "0", "-i", CONCAT_LIST, "-c", "copy", FINAL],
+    [
+      "-y",
+      ...inputs,
+      "-filter_complex", filterComplex,
+      "-map", "[vout]",
+      "-map", "[aout]",
+      "-c:v", "libx264",
+      "-preset", "medium",
+      "-crf", "18",
+      "-pix_fmt", "yuv420p",
+      "-c:a", "aac",
+      "-b:a", "192k",
+      "-movflags", "+faststart",
+      FINAL,
+    ],
     { stdio: "inherit", cwd: ROOT }
   );
   if (r.status !== 0) {
-    console.error("[error] ffmpeg concat 실패. 코덱 파라미터 불일치라면 재인코딩 필요:");
-    console.error(`  ffmpeg -f concat -safe 0 -i ${CONCAT_LIST} -c:v libx264 -c:a aac ${FINAL}`);
+    console.error("[error] ffmpeg xfade concat 실패.");
     process.exit(r.status ?? 1);
   }
   if (existsSync(LATEST)) unlinkSync(LATEST);
