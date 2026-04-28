@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #FFFFFF;
+        font-family: "Pretendard", "Noto Sans KR", -apple-system, sans-serif;
+        color: #111827;
+      }
+
+      /* Brand tokens (from src/lib/brand.ts) */
+      :root {
+        --bg: #FFFFFF;
+        --bgSoft: #F9FAFB;
+        --bgElevated: #F3F4F6;
+        --text: #111827;
+        --textMuted: #4B5563;
+        --primary: #1E40AF;
+        --accent: #2EB5E5;
+        --accentWarm: #F59E0B;
+      }
+
+      .stage {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--bgSoft) 60%, var(--bgElevated) 100%);
+      }
+
+      /* HistoryPhase — 인싸이트그룹 로고 + 오로지 인사 조직 컨설팅 */
+      .history {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        padding: 0 140px;
+        text-align: center;
+        opacity: 0;
+      }
+      .history-logo { height: 100px; width: auto; }
+      .history-title {
+        font-size: 54px;
+        font-weight: 700;
+        line-height: 1.4;
+        max-width: 1400px;
+      }
+      .history-title .focus { color: var(--accentWarm); font-weight: 800; }
+      .history-title .primary { color: var(--primary); font-weight: 800; }
+
+      /* AIPhase — 솔루션 + AI 쾅 */
+      .ai-phase {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        text-align: center;
+        opacity: 0;
+      }
+      .ai-flash {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(245, 158, 11, 0.85) 0%, rgba(245, 158, 11, 0.27) 25%, transparent 55%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ai-solution-line {
+        font-size: 36px;
+        color: var(--textMuted);
+        line-height: 1.5;
+      }
+      .ai-solution-line .primary { color: var(--primary); font-weight: 700; }
+      .ai-impact {
+        font-size: 96px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -2px;
+        text-shadow: 0 0 40px rgba(245, 158, 11, 0.53);
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      .ai-impact .accent { color: var(--accentWarm); }
+
+      /* BrandReveal — 로고 → HR AI → 쉐막 */
+      .brand-reveal {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        text-align: center;
+        opacity: 0;
+      }
+      .brand-flash {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(245, 158, 11, 0.6) 0%, transparent 55%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .brand-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .brand-logo { height: 140px; width: auto; opacity: 0; }
+      .brand-hrai {
+        font-size: 72px;
+        font-weight: 700;
+        letter-spacing: -1px;
+        line-height: 1;
+        color: var(--text);
+        opacity: 0;
+      }
+      .brand-shemak {
+        font-size: 200px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -8px;
+        line-height: 1;
+        opacity: 0;
+      }
+      .brand-underline {
+        width: 120px;
+        height: 4px;
+        background: var(--accent);
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="ig-intro"
+      data-start="0"
+      data-duration="15.72"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- 배경 그라데이션 (전체 구간) -->
+      <div class="stage clip" data-start="0" data-duration="15.72" data-track-index="0"></div>
+
+      <!-- 1. HistoryPhase: 0 ~ 4.58 (fadeOut 4.45 ~ 4.85) -->
+      <div
+        id="history"
+        class="history clip"
+        data-start="0"
+        data-duration="4.85"
+        data-track-index="1"
+      >
+        <img
+          class="history-logo"
+          src="assets/images/insight-group-logo-text-v2.png"
+          alt="인싸이트그룹 로고"
+        />
+        <div class="history-title">
+          <div><span class="focus">오로지 인사 조직 컨설팅</span>에만</div>
+          <div><span class="primary">집중</span>해 왔습니다</div>
+        </div>
+      </div>
+
+      <!-- 2. AIPhase: 4.58 ~ 9.26 (rendered 4.58 ~ 9.6 inc fadeOut) -->
+      <div
+        id="ai-phase"
+        class="ai-phase clip"
+        data-start="4.58"
+        data-duration="5.02"
+        data-track-index="2"
+      >
+        <!-- flash burst at IMPACT_AT (6.78) -->
+        <div id="ai-flash" class="ai-flash"></div>
+        <div class="ai-solution-line">
+          다양한 컨설팅을 통해 확보한
+          <span class="primary">인싸이트그룹만의 솔루션</span> 위에,
+        </div>
+        <div id="ai-impact" class="ai-impact">
+          <span class="accent">AI 서비스</span>를 더했습니다.
+        </div>
+      </div>
+
+      <!-- 3. BrandReveal: 9.26 ~ 15.72 -->
+      <div
+        id="brand-reveal"
+        class="brand-reveal clip"
+        data-start="9.26"
+        data-duration="6.46"
+        data-track-index="3"
+      >
+        <div id="brand-flash" class="brand-flash"></div>
+        <div class="brand-row">
+          <img
+            id="brand-logo"
+            class="brand-logo"
+            src="assets/images/insight-group-logo-text-v2.png"
+            alt="인싸이트그룹 로고"
+          />
+          <div id="brand-hrai" class="brand-hrai">HR AI</div>
+        </div>
+        <div id="brand-shemak" class="brand-shemak">쉐막</div>
+        <div id="brand-underline" class="brand-underline"></div>
+      </div>
+
+      <!-- Audio: 02 narration (15.72s) -->
+      <audio
+        id="audio-narration"
+        class="clip"
+        data-start="0"
+        data-duration="15.72"
+        data-track-index="10"
+        data-volume="1"
+        src="assets/audio/02-ig-intro.mp3"
+      ></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ===== Phase 1: HistoryPhase (0 ~ 4.58, fadeOut 4.45 ~ 4.85) =====
+      // spring-like reveal: damping 18, stiffness 110 → 0.6s ease-out
+      tl.fromTo("#history", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0)
+        // fadeOut starts slightly before AI_AT (4.45 ~ 4.85)
+        .to("#history", { opacity: 0, duration: 0.4, ease: "power2.in" }, 4.45);
+
+      // ===== Phase 2: AIPhase (4.58 ~ 9.26) =====
+      // ipReveal: stiffness 160 (faster) → 0.4s
+      tl.fromTo("#ai-phase", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power3.out" }, 4.58);
+
+      // IMPACT_AT 6.78: AI 서비스를 쾅 (scale bounce + flash)
+      // aiSpring damping 10 stiffness 200 → strong overshoot
+      tl.fromTo(
+        "#ai-impact",
+        { opacity: 0, scale: 0.3 },
+        { opacity: 1, scale: 1.25, duration: 0.35, ease: "power2.out" },
+        6.78
+      ).to("#ai-impact", { scale: 1.0, duration: 0.3, ease: "power2.inOut" }, 7.13);
+
+      // Flash burst at 6.78 (peak ~6.95, fade ~7.6)
+      tl.fromTo("#ai-flash", { opacity: 0 }, { opacity: 0.85, duration: 0.23, ease: "power2.out" }, 6.78)
+        .to("#ai-flash", { opacity: 0, duration: 0.65, ease: "power2.in" }, 7.0);
+
+      // AIPhase fadeOut at REVEAL_AT (9.26)
+      tl.to("#ai-phase", { opacity: 0, duration: 0.33, ease: "power2.in" }, 9.26);
+
+      // ===== Phase 3: BrandReveal (9.26 ~ 15.72) =====
+      // Wrapper reveal at 9.26 (background reset)
+      tl.fromTo("#brand-reveal", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power3.out" }, 9.26);
+
+      // LOGO_AT 11.26: 로고 spring (damping 20, stiffness 120 → 0.5s ease-out)
+      tl.fromTo("#brand-logo", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 11.26);
+
+      // HRAI_AT 12.26: HR AI 텍스트
+      tl.fromTo("#brand-hrai", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 12.26);
+
+      // SHEMAK_AT 13.26: 쉐막 등장 + 한순간 flash + underline
+      tl.fromTo("#brand-shemak", { opacity: 0 }, { opacity: 1, duration: 0.17, ease: "power2.out" }, 13.26)
+        .fromTo(
+          "#brand-flash",
+          { opacity: 0 },
+          { opacity: 0.5, duration: 0.13, ease: "power2.out" },
+          13.26
+        )
+        .to("#brand-flash", { opacity: 0, duration: 0.33, ease: "power2.in" }, 13.39)
+        .fromTo(
+          "#brand-underline",
+          { opacity: 0, scaleX: 0 },
+          { opacity: 1, scaleX: 1, duration: 0.4, ease: "power3.out", transformOrigin: "center" },
+          13.4
+        );
+
+      window.__timelines["ig-intro"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+{
+  "_README": "각 cue가 어떤 발음 시점에 정렬되는지 정의. extract_cue_timestamps.mjs가 WhisperX word-level transcription에서 phrase를 검색해 timestamp를 추출함. occurrence는 같은 phrase가 여러 번 나올 때 몇 번째인지 (0-indexed). anchor=start는 phrase 시작 시간, anchor=end는 phrase 끝 시간. duration_phrase는 해당 phrase 발음에 걸린 시간(끝-시작)을 추출.",
+
+  "01-intro": {
+    "scalar": {
+      "SURVEY_AT":   { "phrase": "뭔가 열심히",     "anchor": "start", "occurrence": 0, "note": "조사·보고 단락 시작" },
+      "QUESTION_AT": { "phrase": "답이 되고 있나요", "anchor": "end",   "occurrence": 0, "note": "두번째 질문 끝" },
+      "MONITOR_AT":  { "phrase": "모니터링",         "anchor": "start", "occurrence": 0, "note": "모니터링 단어 시작 - zoom 트리거" },
+      "BARN_AT":     { "phrase": "외양간",           "anchor": "start", "occurrence": 0, "note": "외양간 첫 등장" }
+    },
+    "array": {
+      "Q_START": [
+        { "phrase": "보상 수준은", "anchor": "start", "occurrence": 0, "note": "Q1 첫 질문 시작" },
+        { "phrase": "야근하나요",   "anchor": "start", "occurrence": 0, "note": "Q2 두번째 질문 시작 (대신 '야근' 단어로 매칭)" },
+        { "phrase": "다른 회사",   "anchor": "start", "occurrence": 0, "note": "Q3 세번째 질문 시작" }
+      ]
+    }
+  },
+
+  "02-ig-intro": {
+    "scalar": {
+      "IP_FRAME_AT": { "phrase": "인싸이트그룹",     "anchor": "start", "occurrence": 0, "note": "첫 단어 시작 — 보통 0에 가까움" },
+      "AI_AT":       { "phrase": "에이아이 서비스", "anchor": "start", "occurrence": 0, "note": "AI 서비스 강조 시작" },
+      "IMPACT_AT":   { "phrase": "에이아이 서비스를", "anchor": "start", "occurrence": 0, "note": "AI 서비스를 더했습니다 시작 — 쾅 효과" },
+      "REVEAL_AT":   { "phrase": "더했습니다",       "anchor": "end",   "occurrence": 0, "note": "AI 단락 끝 — 다음 단락 시작점" },
+      "LOGO_AT":     { "phrase": "인싸이트그룹이 만든", "anchor": "start", "occurrence": 0, "note": "로고 첫 등장" },
+      "HRAI_AT":     { "phrase": "에이치알 에이아이", "anchor": "start", "occurrence": 0, "note": "HR AI 텍스트 등장" },
+      "SHEMAK_AT":   { "phrase": "쉐막입니다",       "anchor": "start", "occurrence": 0, "note": "쉐막 reveal" }
+    }
+  },
+
+  "03-hr-agent": {
+    "scalar": {},
+    "phases": {
+      "OPENER": {
+        "start": { "phrase": "쉐막의 중심",     "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "에이전트가 움직입니다", "anchor": "end",   "occurrence": 0 }
+      },
+      "CEO_VIEW": {
+        "start": { "phrase": "경영진 에이아이 에이전트", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "수정해야 할 조직과 과제를 제시합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "HR_HEAD": {
+        "start": { "phrase": "에이치알 임원 에이아이 에이전트", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "종합 판단합니다",  "anchor": "end",   "occurrence": 0 }
+      },
+      "TEAM_LEAD": {
+        "start": { "phrase": "사실, 가장 바탕이 되는 것은", "anchor": "start", "occurrence": 0, "fallback_phrase": "팀장 에이전트" },
+        "end":   { "phrase": "무엇을 하는 것이 좋다고요", "anchor": "end", "occurrence": 0 }
+      }
+    },
+    "cues": [
+      { "key": "CUE_0", "start_phrase": { "phrase": "경영진 에이아이 에이전트", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "전사 목표를 실시간으로 모니터링하고", "anchor": "end", "occurrence": 0 },
+        "text": "경영진 AI — 전사 목표·KPI 모니터링" },
+      { "key": "CUE_1", "start_phrase": { "phrase": "연말 케이피아이 실적을 추정하여", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "수정해야 할 조직과 과제를 제시합니다", "anchor": "end", "occurrence": 0 },
+        "text": "연말 실적 추정 → 수정해야 할 과제 제시" },
+      { "key": "CUE_2", "start_phrase": { "phrase": "에이치알 임원 에이아이 에이전트", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "보상 인상률 최적 배분입니다", "anchor": "end", "occurrence": 0 },
+        "text": "HR 임원 AI — 보상 인상률 최적 배분" },
+      { "key": "CUE_3", "start_phrase": { "phrase": "구성원의 몰입 유형과 스킬 레벨", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "종합 판단합니다", "anchor": "end", "occurrence": 0 },
+        "text": "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
+      { "key": "CUE_4", "start_phrase": { "phrase": "정기적 일대일 면담 결과", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "무엇을 하는 것이 좋다고요", "anchor": "end", "occurrence": 0 },
+        "text": "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" }
+    ]
+  },
+
+  "04-bridge": {
+    "scalar": {},
+    "_note": "04는 OPTIC_OFFSET (1.5s)와 fadeOut (4.5~end) 두 개. OPTIC_OFFSET은 '옵틱' 단어 등장 시점에서 추출. fadeOut은 항상 끝-0.46s ~ 끝.",
+    "computed": {
+      "OPTIC_OFFSET": { "phrase": "옵틱", "anchor": "start", "occurrence": 0, "note": "spring 시작 frame offset (현재 1.5s)" }
+    }
+  },
+
+  "05-optic-view": {
+    "scalar": {},
+    "phases": {
+      "TYPES": {
+        "start": { "phrase": "옵틱은 구성원", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "해결방안을 시뮬레이션 합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "DIVERSE": {
+        "start": { "phrase": "몰입도뿐 아닙니다", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "결과를 보고합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "RISK": {
+        "start": { "phrase": "조직 리스크를 조기에 탐지하며", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "에이아이가 먼저 찾아냅니다", "anchor": "end", "occurrence": 0 }
+      },
+      "WHATIF": {
+        "start": { "phrase": "여기서 한 걸음 더 나아갑니다", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "민감도 분석도 가능합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "TRANSITION": {
+        "start": { "phrase": "이어지는 팬 모듈과 함께", "anchor": "start", "occurrence": 0 },
+        "end":   { "type": "section_end", "note": "섹션 끝까지" }
+      }
+    },
+    "cues": [
+      { "key": "CUE_0", "start_phrase": { "phrase": "옵틱은 구성원", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "의식 패턴을 에이아이가 분석하여 예측합니다", "anchor": "end", "occurrence": 0 },
+        "text": "설문 결과 → AI가 의식 패턴 유형화" },
+      { "key": "CUE_1", "start_phrase": { "phrase": "몰입도뿐 아닙니다", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "조직 문화", "anchor": "end", "occurrence": 0 },
+        "text": "몰입도뿐 아닙니다 — 만족도 · 리더십 · 조직 문화" },
+      { "key": "CUE_2", "start_phrase": { "phrase": "설문 영역 별로", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "결과를 보고합니다", "anchor": "end", "occurrence": 0 },
+        "text": "영역별 타사 비교 + 결과 보고" },
+      { "key": "CUE_3", "start_phrase": { "phrase": "조직 리스크를 조기에 탐지하며", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "에이아이가 먼저 찾아냅니다", "anchor": "end", "occurrence": 0 },
+        "text": "리스크 사전 탐지 · 이탈 위험군 발굴" },
+      { "key": "CUE_4", "start_phrase": { "phrase": "왓 이프 시뮬레이터", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "왓 이프 시뮬레이터", "anchor": "end", "occurrence": 0 },
+        "text": "What-If 시뮬레이터" },
+      { "key": "CUE_5", "start_phrase": { "phrase": "어느 정도 개선하면", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "민감도 분석도 가능합니다", "anchor": "end", "occurrence": 0 },
+        "text": "요인 개선 시 몰입도 변화 민감도 분석" },
+      { "key": "CUE_6", "start_phrase": { "phrase": "이어지는 팬 모듈과 함께", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "실행과제와 연결됩니다", "anchor": "end", "occurrence": 0 },
+        "text": "판 모듈과 함께 → 진단이 실행과제로" }
+    ]
+  },
+
+  "06-pan-hr": {
+    "scalar": {},
+    "phases": {
+      "M0_OPENER": {
+        "start": { "phrase": "어느 부서가 바쁜지", "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "통합 운영합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "M1_PLAN": {
+        "start": { "phrase": "인력계획",        "anchor": "start", "occurrence": 0 },
+        "end":   { "phrase": "인력 규모를 예측합니다", "anchor": "end", "occurrence": 0 }
+      },
+      "M3_SKILL": {
+        "start": { "phrase": "스킬 관리",       "anchor": "start", "occurrence": 0 },
+        "end":   { "type": "section_end" }
+      }
+    },
+    "cues": [
+      { "key": "CUE_0", "start_phrase": { "phrase": "어느 부서가 바쁜지", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "보여드립니다", "anchor": "end", "occurrence": 0 },
+        "text": "판 — 어느 부서가 바쁜지, 왜 바쁜지, 스킬 수준까지 AI 정리" },
+      { "key": "CUE_1", "start_phrase": { "phrase": "각 기능별 인력 동인을", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "phrase": "인력 규모를 예측합니다", "anchor": "end", "occurrence": 0 },
+        "text": "M1 인력계획 — 기능별 인력 동인 모델링 · 미래 규모 예측" },
+      { "key": "CUE_2", "start_phrase": { "phrase": "스킬 매트릭스로", "anchor": "start", "occurrence": 0 },
+        "end_phrase":   { "type": "section_end" },
+        "text": "M3 스킬 매칭 — 개인 역량 진단 · 필요 조직과 매칭" }
+    ]
+  },
+
+  "08-foundation": {
+    "scalar": {
+      "HEAD_AT":     { "phrase": "이 많은 에이아이",   "anchor": "start", "occurrence": 0, "note": "헤드라인 등장 — 보통 첫 단어" },
+      "CARDS_START": { "phrase": "에이치알 컨설팅",   "anchor": "start", "occurrence": 0, "note": "첫 카드 등장" },
+      "CLOSER_AT":   { "phrase": "이 데이터들이",     "anchor": "start", "occurrence": 0, "note": "마무리 단락 시작" }
+    },
+    "_note": "CARDS_SPACING은 자동 추출 어려움 — STATS 4개 카드 시작 시각의 평균 간격으로 계산. countDur 4개는 각 숫자 발음 phrase의 duration으로 추출.",
+    "computed": {
+      "CARDS_SPACING": { "type": "average_spacing", "phrases": ["에이치알 컨설팅", "백만 명 넘는", "직무 등 에이치알 관련", "에이아이 특허 출원"] }
+    },
+    "stats_countDur": [
+      { "index": 0, "phrase": "천 팔십 사 회",       "anchor_start": "start", "anchor_end": "end" },
+      { "index": 1, "phrase": "백만 명",             "anchor_start": "start", "anchor_end": "end" },
+      { "index": 2, "phrase": "이천 사백만 건",       "anchor_start": "start", "anchor_end": "end" },
+      { "index": 3, "phrase": "세 건",               "anchor_start": "start", "anchor_end": "end" }
+    ]
+  },
+
+  "09-closing": {
+    "scalar": {
+      "T_VALUE_START":   { "phrase": "다만 에이치알 에이아이는", "anchor": "start", "occurrence": 0, "note": "VALUE 단락 시작" },
+      "T_SCALE_START":   { "phrase": "데모 요청",                "anchor": "start", "occurrence": 0, "note": "데모/PoC 단락 시작" },
+      "T_BRAND_START":   { "phrase": "소규모 벤처부터",          "anchor": "start", "occurrence": 0, "note": "브랜드 단락 시작" },
+      "T_CONTACT_START": { "phrase": "데이터로",                  "anchor": "start", "occurrence": 0, "note": "Contact/마무리" }
+    }
+  }
+}
