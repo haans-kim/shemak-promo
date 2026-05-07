@@ -3,22 +3,17 @@ import { SceneFrame } from "../components/SceneFrame";
 import { BarnImage } from "../components/BarnImage";
 import { BRAND } from "../lib/brand";
 
-// 01 Intro (31.74s) — 2026-04-21 최종
-// 0~3s  Q1: "요즘 같은 때 우리 회사 보상 수준은 경쟁력 있나요?"
-// 4~7s  Q2: "저 부서는 왜 매일 야근하나요?"
-// 8~11s Q3: "다른 회사 알아보는 사람들이 많아 진다는데?"
-// 12~14s "뭔가 열심히 조사하고 보고하고 계시죠?"
-// 15~18s "그 조사 데이터가 답이 되고 있나요?"
-// 19~22s "쉐막은 궁금증을 모니터링 하며 답을 제안합니다"
-// 23~31s 외양간 브랜드 스토리 (소 잃고 외양간 고치지 말자 / 미리 예측하자)
-
-// v10: Q3 너무 빠름 피드백(00:07) → Q3 등장 후 체류 길게 + survey 진입 더 늦춤
-// 또한 narration text "많아 진다는데" → "많아진다는데" (TTS는 이미 녹음됨, 자막만 변경)
-const Q_START = [0.3, 4.0, 7.5];   // Q3 6.7 → 7.5 (체류 길게)
-const SURVEY_AT = 12.0;
-const QUESTION_AT = 16.5;
-const MONITOR_AT = 20.0;
-const BARN_AT = 24.3;
+// 01 Intro (35.29s) — v20 spliced audio (line별 정확 timestamp)
+//   Q_START [0.00, 4.80, 9.68] — 보상 / 야근 / 다른회사 발화 시작
+//   SURVEY_AT 14.18 — '뭔가 열심히' 시작
+//   QUESTION_AT 22.06 — '답이 되고 있나요' 끝
+//   MONITOR_AT 22.56 — '쉐막은 모니터링' 시작
+//   BARN_AT 26.99 — '외양간이라는 뜻' 시작
+const Q_START = [0.00, 4.80, 9.68];
+const SURVEY_AT = 14.18;
+const QUESTION_AT = 22.06;
+const MONITOR_AT = 22.56;
+const BARN_AT = 26.99;
 
 const QUESTIONS = [
   "요즘 같은 때 우리 회사 보상 수준은 경쟁력 있나요?",
@@ -28,7 +23,7 @@ const QUESTIONS = [
 
 export const IntroScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/01-intro.mp3" background={BRAND.colors.light.bg}>
+    <SceneFrame audioSrc="audio/01-intro.wav" background={BRAND.colors.light.bg}>
       <QuestionPhase />
       <SurveyPhase />
       <QuestionConnector />

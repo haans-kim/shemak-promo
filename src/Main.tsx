@@ -11,6 +11,7 @@ import { FoundationScene } from "./scenes/08-Foundation";
 import { ClosingScene } from "./scenes/09-Closing";
 import { SECTIONS, secondsToFrames } from "./lib/sections";
 
+// v20: 07 Synergy 제거
 const order = ["01", "02", "03", "04", "05", "06", "08", "09"] as const;
 const components = {
   "01": IntroScene,

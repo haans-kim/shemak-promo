@@ -11,6 +11,7 @@ import { ClosingScene } from "./scenes/09-Closing";
 import { SECTIONS, secondsToFrames } from "./lib/sections";
 import { VIDEO } from "./lib/brand";
 
+// v20: 07 Synergy 제거
 const SECTION_COMPONENTS = {
   "01": IntroScene,
   "02": IGIntroScene,

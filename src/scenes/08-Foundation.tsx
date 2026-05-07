@@ -4,16 +4,15 @@ import { CountUp } from "../components/CountUp";
 import { BarnImage } from "../components/BarnImage";
 import { BRAND } from "../lib/brand";
 
-// 08 Foundation (20.11s) — v9 피드백 반영
-// 02:30: 헤드라인 상단 고정 → 숫자 나올 때 위로 올라가는 애니메이션
-// 02:33: CountUp sync 맞춤
-// 02:48: 외양간 callback (아이콘 + 불빛 + 숫자들 모여듦)
-
-// v11 #7,#8: 02:51/02:54 카드 전환 너무 빠름 → 카드 등장 간격 + CountUp 느리게
-const HEAD_AT = 0.3;
-const CARDS_START = 7.5;
-const CARDS_SPACING = 2.4;     // 2.3 → 2.4 (조금 여유 — CLOSER_AT 손대지 않는 선)
-const CLOSER_AT = 17.0;
+// 08 Foundation (27.80s) — v20 spliced audio (line별 측정)
+//   HEAD_AT      0.00 ("이 많은 AI 모듈들 기반에는")
+//   CARDS_START  8.18 ("HR 컨설팅 1,084회") — 첫 카드
+//   카드 4개 시작: 8.18 / 11.02 / 14.40 / 19.66 (spacing 2.84/3.38/5.26 — 일정 X)
+//   CLOSER_AT   23.06 ("이 데이터들이")
+const HEAD_AT = 0.0;
+const CARDS_START = 8.18;
+const CARDS_SPACING = 3.83;  // 평균 (편의)
+const CLOSER_AT = 23.06;
 
 const STATS = [
   { caption: "HR 컨설팅",          value: 1084,  suffix: "회",     countDur: 1.7 },  // 1.1 → 1.7
@@ -24,7 +23,7 @@ const STATS = [
 
 export const FoundationScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/08-foundation.mp3" background={BRAND.colors.dark.bg}>
+    <SceneFrame audioSrc="audio/08-foundation.wav" background={BRAND.colors.dark.bg}>
       <Background />
       <Headline />
       <StatsGrid />

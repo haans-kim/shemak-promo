@@ -4,36 +4,36 @@ import { FullVideo } from "../components/FullVideo";
 import { Subtitle, Cue } from "../components/Subtitle";
 import { BRAND } from "../lib/brand";
 
-// 03 HR Agent (47.05s) — 2026-04-21 최종본
-// 0~6.5s   OPENER (판단·추론·해결 + 3 에이전트 카드)
-// 6.5~18s  CEO 경영진 — phase13_ceo_overview (전사 목표 KPI)
-// 18~35s   HR 임원 — phase16_ilji_simulation (최적 인상률 → Simulation)
-// 35~47s   팀장 — phase17_team_skill
-
-// v9.1 실제 TTS silence 기반 sync
-// v18 #4: 팀장 에이전트 나레이션 시점 = 절대 01:27.0 = 03-local 39.85s (USER)
-//   → HR 임원 phase 연장 (36.0 → 39.85), 팀장 phase 단축 (36.0→39.85 시작)
-// silences: @13.53 (오프너 종료) / @24.46 (CEO 종료) / @33.62/35.77 (HR 임원 종료) / @46.79 (팀장 종료)
+// 03 HR Agent (52.18s) — v20 spliced audio + narration_final 통일 자막
+// PHASES: line 그룹 단위
+//   OPENER     0.00~14.00s (line 1~4: AI가 패턴 / 감으로만 / 경영진·HR 임원·모든 팀장 / 각 직책)
+//   CEO_VIEW   15.00~26.56s (line 5~6: 경영진 AI 에이전트 / 모든 KPI)
+//   HR_HEAD    27.44~44.50s (line 7~9: HR 임원 AI / 몰입 유형 / 그리고 시장 임금)
+//   TEAM_LEAD  45.30~52.18s (line 10: 팀장 에이전트)
 const PHASES = {
-  OPENER:    { start: 0.2,  end: 13.5 },
-  CEO_VIEW:  { start: 13.5, end: 24.5,  video: "videos/phase13_ceo_overview.webm",    videoStartFrom: 0 },
-  HR_HEAD:   { start: 24.5, end: 39.85, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },  // +3.85s (앞 장면 연장)
-  TEAM_LEAD: { start: 39.85, end: 47.05, video: "videos/phase17_team_skill.webm",      videoStartFrom: 0 }, // 36.0 → 39.85
+  OPENER:    { start: 0.0,   end: 14.00 },
+  CEO_VIEW:  { start: 15.00, end: 26.56, video: "videos/phase13_ceo_overview.webm",    videoStartFrom: 0 },
+  HR_HEAD:   { start: 27.44, end: 44.50, video: "videos/phase16_ilji_simulation.webm", videoStartFrom: 0 },
+  TEAM_LEAD: { start: 45.30, end: 52.18, video: "videos/phase17_team_skill.webm",      videoStartFrom: 0 },
 };
 
-// v9.1: cue 타이밍도 실제 narration에 맞춰 재조정
-// v18 #4: 팀장 cue 시작만 +3.85s shift (나머지 HR_HEAD cues 2개는 종료 35.5로 그대로 → HR_HEAD 연장 구간은 자막 없이 영상만)
+// v20: 자막 narration_final.txt 그대로 통일 (line 단위)
 const CUES: Cue[] = [
-  { start: 14.0, end: 19.0, text: "경영진 AI — 전사 목표·KPI 모니터링" },
-  { start: 19.3, end: 24.0, text: "연말 실적 추정 → 수정해야 할 과제 제시" },
-  { start: 25.0, end: 29.5, text: "HR 임원 AI — 보상 인상률 최적 배분" },
-  { start: 30.0, end: 35.5, text: "몰입·스킬·평가·번아웃·시장임금 자동 크롤링·종합판단" },
-  { start: 40.35, end: 46.5, text: "팀장 에이전트 — 1:1 면담·팀원 특성·업무 현황 정리·보고" },
+  { start: 0.00,  end: 3.60,  text: "AI가 패턴을 분석하여 판단하고, 추론하고," },
+  { start: 3.60,  end: 7.26,  text: "감으로만 풀기 어려운 복잡한 문제를 해결합니다." },
+  { start: 7.66,  end: 10.64, text: "경영진, HR 임원, 모든 팀장." },
+  { start: 10.80, end: 14.00, text: "각 직책에 맞는 AI 에이전트가 움직입니다." },
+  { start: 15.00, end: 19.98, text: "경영진 AI 에이전트는, 전사 목표 달성수준을 모니터링하고 예측합니다." },
+  { start: 21.30, end: 26.56, text: "모든 KPI를 실시간으로 모니터링하고 AI가 실적을 추정하여 보고합니다." },
+  { start: 27.44, end: 34.00, text: "HR 임원 AI 에이전트 기능 중 하나는 보상 인상률 최적 배분입니다." },
+  { start: 34.90, end: 39.02, text: "몰입 유형과 스킬 레벨, 인사 평가 등급과 번아웃 수준," },
+  { start: 39.38, end: 44.50, text: "그리고 시장 임금까지. AI가 자동으로 크롤링해서 종합 판단합니다." },
+  { start: 45.30, end: 51.92, text: "팀장 에이전트는 1대1 면담과 팀원 특성, 업무 현황을 AI가 정리하여 팀장에게 보고합니다." },
 ];
 
 export const HRAgentScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/03-hr-agent.mp3" background={BRAND.colors.light.bg}>
+    <SceneFrame audioSrc="audio/03-hr-agent.wav" background={BRAND.colors.light.bg}>
       <OpenerPhase />
       <CEOPhase />
       <HRHeadPhase />

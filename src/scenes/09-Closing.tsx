@@ -2,26 +2,20 @@ import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig }
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 09 Closing (19.01s after haans +3s Contact hold) — v15: USER-SPECIFIED timestamps
-// 사용자 xlsx "1814 ver" 시트에서 직접 지정한 화면 전환 시각 그대로 적용
-// (my audio measurement와 사용자 perception이 계속 어긋남 → 사용자 timestamp를 진실로 채택)
-//
-// scene 09 시작 = video 167.13s (02:47.13)
-// 사용자 요청 (절대 video time → scene-local):
-//   02:50 "인사는 결국"      → scene 2.87
-//   02:55 "소규모~대기업"     → scene 7.87
-//   02:59 "데이터로 해석"     → scene 11.87
-//   03:01 "인싸이트그룹 쉐막"  → scene 13.87 (BrandBlock signature)
-//   Contact 유지 시간 늘려야 → haans가 scene 09 duration 19.01s로 +3s 연장
+// 09 Closing (audio 18.08s + 3s Contact stay = 21.08s) — v20 spliced audio
+//   T_VALUE_START   0.00 ("인사는 결국 사람이 합니다.")
+//   T_SCALE_START   8.76 ("소규모 벤처부터, 중견기업, 대기업까지.")
+//   T_BRAND_START  12.48 ("데이터로, 조직을 해석합니다.")
+//   T_CONTACT_START 18.08 (audio 끝, ContactBlock 3s stay)
 
-const T_VALUE_START   = 2.87;   // 0.4  → 2.87 (user: 02:50)
-const T_SCALE_START   = 7.87;   // 4.28 → 7.87 (user: 02:55)
-const T_BRAND_START   = 11.87;  // 8.29 → 11.87 (user: 02:59)
-const T_CONTACT_START = 16.0;   // 13.85 → 16.0 (signature 13.87 이후 Contact 충분 시간)
+const T_VALUE_START   = 0.00;
+const T_SCALE_START   = 8.76;
+const T_BRAND_START   = 12.48;
+const T_CONTACT_START = 18.08;
 
 export const ClosingScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/09-closing.mp3" background={BRAND.colors.light.bg}>
+    <SceneFrame audioSrc="audio/09-closing.wav" background={BRAND.colors.light.bg}>
       <ValueBlock />
       <ScaleBlock />
       <BrandBlock />

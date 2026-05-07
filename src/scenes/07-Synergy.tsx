@@ -43,7 +43,7 @@ export const SynergyScene: React.FC = () => {
   const finale = spring({ frame: frame - finaleFrame, fps, config: { damping: 18, stiffness: 90 } });
 
   return (
-    <SceneFrame audioSrc="audio/07-synergy.mp3" background={BRAND.colors.dark.bg}>
+    <SceneFrame audioSrc="audio/07-synergy.wav" background={BRAND.colors.dark.bg}>
       <div style={{
         position: "absolute",
         inset: 0,

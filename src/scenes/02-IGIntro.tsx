@@ -2,25 +2,25 @@ import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig }
 import { SceneFrame } from "../components/SceneFrame";
 import { BRAND } from "../lib/brand";
 
-// 02 IGIntro (15.41s) — v16 narration + v18 피드백 1334#1,#2 (USER-SPECIFIED timestamps)
-// 새 narration (-35dB silence):
-//   0.31~4.30  : "인싸이트그룹은 오로지 인사 조직 컨설팅에만 집중해 왔습니다"
-//   4.58~(9.26): "다양한 컨설팅을 통해 ~ AI 서비스를 더했습니다" (USER: 00:41.0 = 9.26s "다" 발음 끝)
-//   11.26      : "인싸이트그룹이 만든" — 로고만 (USER: 00:43.0)
-//   12.26      : "HR AI" 추가 (USER: 00:44.0)
-//   13.26      : "쉐막입니다" 쉐막 등장 (USER: 00:45.0)
+// 02 IGIntro (16.35s) — v20 spliced audio (word-level measured)
+//   0.00~5.36   "인싸이트그룹은 오로지 인사 조직 컨설팅에만 집중해 왔습니다"
+//   5.72~9.38   "다양한 컨설팅을 통해 ~ 솔루션 위에"
+//   9.38~11.60  "AI 서비스를 더했습니다"
+//   12.46~13.56 "인싸이트그룹이 만든"
+//   13.56~15.12 "HR AI"
+//   15.12~15.86 "쉐막입니다"
 
 const IP_FRAME_AT = 0.0;
-const AI_AT = 4.58;        // 유지 ("AI 서비스" 쾅 효과 시점)
-const IMPACT_AT = 6.78;    // 유지
-const REVEAL_AT = 9.26;    // 8.74 → 9.26 (USER: AI 문장 "다" 끝 timestamp)
-const LOGO_AT = 11.26;     // 신설: "인싸이트그룹이 만든" 로고 등장 (USER)
-const HRAI_AT = 12.26;     // 신설: "HR AI" 텍스트 추가 (USER)
-const SHEMAK_AT = 13.26;   // 11.26 → 13.26 (USER: "쉐막입니다")
+const AI_AT = 5.72;         // AIPhase 진입 ("다양한 컨설팅" 시작)
+const IMPACT_AT = 9.38;     // "AI 서비스" 쾅 효과 시점
+const REVEAL_AT = 11.60;    // AI 단락 끝
+const LOGO_AT = 12.46;      // "인싸이트그룹이 만든" — 로고
+const HRAI_AT = 13.56;      // "HR AI" 텍스트
+const SHEMAK_AT = 15.12;    // "쉐막입니다"
 
 export const IGIntroScene: React.FC = () => {
   return (
-    <SceneFrame audioSrc="audio/02-ig-intro.mp3" background={BRAND.colors.dark.bg}>
+    <SceneFrame audioSrc="audio/02-ig-intro.wav" background={BRAND.colors.dark.bg}>
       <Background />
       <HistoryPhase />
       <AIPhase />

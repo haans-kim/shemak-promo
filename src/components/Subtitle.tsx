@@ -54,14 +54,19 @@ export const Subtitle: React.FC<Props> = ({ cues, fontSize = 44, bottom = 80 }) 
     }}>
       <div
         style={{
+          // v19: 반투명 검정 배경 + 흰 글씨 (사용자 요청)
+          display: "inline-block",
+          background: "rgba(0, 0, 0, 0.65)",
+          padding: "14px 28px",
+          borderRadius: 10,
           whiteSpace: "pre-line",
           fontSize,
-          fontWeight: 800,             // v16: 700 → 800 (가독성)
-          color: "#000000",            // v16: 흰 → 검정 단색 (사용자 선택 B)
+          fontWeight: 800,
+          color: "#FFFFFF",
           lineHeight: 1.4,
           letterSpacing: -0.3,
-          textShadow: "0 0 8px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,0.8)", // 대시보드 배경 대비용 흰 글로우 미세하게
           wordBreak: "keep-all",
+          maxWidth: "100%",
         }}
       >
         {active.text}
