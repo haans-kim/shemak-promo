@@ -78,8 +78,13 @@ function cacheStatus(out, slug) {
   const st = statSync(out);
   if (st.size === 0) return { valid: false, severity: "rebuild", reason: "corrupt (0 bytes)" };
   if (SRC_NEWEST > st.mtimeMs) return { valid: false, severity: "warn", reason: "src/ newer than cache" };
-  const audio = resolve(AUDIO_DIR, `${slug}.mp3`);
-  if (existsSync(audio) && statSync(audio).mtimeMs > st.mtimeMs) {
+  // v20+: audio가 .wav 또는 .mp3 — 둘 중 존재하는 쪽으로 freshness 검사
+  const audioCandidates = [
+    resolve(AUDIO_DIR, `${slug}.wav`),
+    resolve(AUDIO_DIR, `${slug}.mp3`),
+  ];
+  const audio = audioCandidates.find((p) => existsSync(p));
+  if (audio && statSync(audio).mtimeMs > st.mtimeMs) {
     return { valid: false, severity: "warn", reason: "audio file newer than cache" };
   }
   return { valid: true };
