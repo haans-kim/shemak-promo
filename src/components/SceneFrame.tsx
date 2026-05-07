@@ -1,17 +1,16 @@
 import { AbsoluteFill, Audio, staticFile } from "remotion";
 import { BRAND } from "../lib/brand";
 
-// public/audio 아래 실제 존재하는 MP3만 렌더 (오디오 미생성 시 404 방지용 가드).
+// v20: .wav로 변경. public/audio 아래 실제 존재하는 파일 화이트리스트.
 const AVAILABLE_AUDIO = new Set<string>([
-  "audio/01-intro.mp3",
-  "audio/02-ig-intro.mp3",
-  "audio/03-hr-agent.mp3",
-  "audio/04-bridge.mp3",
-  "audio/05-optic-view.mp3",
-  "audio/06-pan-hr.mp3",
-  "audio/07-synergy.mp3",
-  "audio/08-foundation.mp3",
-  "audio/09-closing.mp3",
+  "audio/01-intro.wav",
+  "audio/02-ig-intro.wav",
+  "audio/03-hr-agent.wav",
+  "audio/04-bridge.wav",
+  "audio/05-optic-view.wav",
+  "audio/06-pan-hr.wav",
+  "audio/08-foundation.wav",
+  "audio/09-closing.wav",
 ]);
 
 interface Props {
