@@ -5,13 +5,13 @@ import { BRAND } from "../lib/brand";
 
 // 01 Intro (35.29s) — v20 spliced audio (line별 정확 timestamp)
 //   Q_START [0.00, 4.80, 9.68] — 보상 / 야근 / 다른회사 발화 시작
-//   SURVEY_AT 14.18 — '뭔가 열심히' 시작
-//   QUESTION_AT 22.06 — '답이 되고 있나요' 끝
-//   MONITOR_AT 22.56 — '쉐막은 모니터링' 시작
-//   BARN_AT 26.99 — '외양간이라는 뜻' 시작
+//   SURVEY_AT   14.18 — '뭔가 열심히 조사·보고' line 시작
+//   QUESTION_AT 17.64 — '그런데 그 조사 데이터가 답이...' line 시작 (전환 sync)
+//   MONITOR_AT  22.56 — '쉐막은 궁금증을 모니터링' line 시작
+//   BARN_AT     26.99 — '외양간이라는 뜻' 시작
 const Q_START = [0.00, 4.80, 9.68];
 const SURVEY_AT = 14.18;
-const QUESTION_AT = 22.06;
+const QUESTION_AT = 17.64;
 const MONITOR_AT = 22.56;
 const BARN_AT = 26.99;
 
@@ -223,7 +223,8 @@ const BarnStoryPhase: React.FC = () => {
   const start = BARN_AT * fps;
   const reveal = spring({ frame: frame - start, fps, config: { damping: 20, stiffness: 110 } });
   const lf = frame - start;
-  const fadeOut = interpolate(frame, [31.5 * fps, 31.74 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // v20: 35.29s duration에 맞춤 (이전 30.74s 기준 31.5/31.74였음)
+  const fadeOut = interpolate(frame, [35.0 * fps, 35.29 * fps], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const opacity = reveal * fadeOut;
 
   // 외양간 소개 텍스트

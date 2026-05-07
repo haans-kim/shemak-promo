@@ -14,12 +14,12 @@ const PHASES = {
   M3_SKILL:  { start: 12.78, end: 17.01, video: "videos/phase33_pan_m1_to_m3.webm",   videoStartFrom: 540 },
 };
 
-// v20: 자막 narration_final.txt 그대로 통일
+// v20.1: 자막 가독성 — 긴 문장 의미 단위 줄바꿈
 const CUES: Cue[] = [
-  { start: 0.0,   end: 6.30,  text: "어느 부서가 바쁜지 구성원 스킬 부족때문은 아닌지 수시로 정리하여 보여드립니다." },
+  { start: 0.0,   end: 6.30,  text: "어느 부서가 바쁜지 구성원 스킬 부족 때문은 아닌지\n수시로 정리하여 보여드립니다." },
   { start: 6.62,  end: 7.60,  text: "인력계획." },
-  { start: 7.84,  end: 12.26, text: "각 기능별 인력 동인을 모델링하여 향후 인력 규모를 예측합니다." },
-  { start: 12.78, end: 16.70, text: "개인 역량 수준을 진단하여 필요한 조직과 매칭도 가능합니다." },
+  { start: 7.84,  end: 12.26, text: "각 기능별 인력 동인을 모델링하여\n향후 인력 규모를 예측합니다." },
+  { start: 12.78, end: 16.70, text: "개인 역량 수준을 진단하여\n필요한 조직과 매칭도 가능합니다." },
 ];
 
 export const PanHRScene: React.FC = () => {
