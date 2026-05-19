@@ -129,7 +129,7 @@ const BrandBlock: React.FC = () => {
   );
 };
 
-// 컨택 포인트 — 마지막 장면
+// 컨택 포인트 — 마지막 장면 (vn-shemak: 이메일 → QR 코드)
 const ContactBlock: React.FC = () => {
   const { frame, fps } = useSceneTime();
   const startFrame = T_CONTACT_START * fps;
@@ -138,22 +138,24 @@ const ContactBlock: React.FC = () => {
     <div style={{
       position: "absolute", inset: 0,
       display: "flex", alignItems: "center", justifyContent: "center",
-      flexDirection: "column", gap: 30,
+      flexDirection: "column", gap: 24,
       opacity: reveal,
     }}>
       <div style={{ fontSize: 24, color: BRAND.colors.light.textMuted, letterSpacing: 2 }}>
         Contact
       </div>
       <div style={{
-        padding: "20px 48px",
-        background: BRAND.colors.light.bgElevated,
+        padding: 24,
+        background: "#ffffff",
         border: `2px solid ${BRAND.colors.primary}`,
         borderRadius: 14,
-        fontSize: 40, color: BRAND.colors.primary, fontWeight: 700,
-        letterSpacing: 1,
+        display: "flex", alignItems: "center", justifyContent: "center",
         transform: `scale(${interpolate(reveal, [0, 1], [0.85, 1])})`,
       }}>
-        📧 shemak@insightgroup.co.kr
+        <Img src={staticFile("images/vn-shemak-qr.png")} style={{ width: 320, height: 320, display: "block" }} />
+      </div>
+      <div style={{ fontSize: 22, color: BRAND.colors.light.textMuted, letterSpacing: 1 }}>
+        스캔하여 문의
       </div>
     </div>
   );
