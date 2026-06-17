@@ -98,12 +98,26 @@ const SEGMENTS = [
       { name: "스크린10 바 조정1.png",  dur: 6.5 },
       { name: "스크린10 원상복구1.png", dur: 2.5 },
       { name: "스크린10 바 조정2.png",  dur: 7.0 },
-      { name: "스크린10 원상복구2.png", dur: 8.5 },   // 마지막 화면 5:23까지 홀드. Σ24.5 - 3*0.5 = 23s
+      { name: "스크린10 원상복구2.png", dur: 14.5 },  // 05:29 스크린11 등장까지 홀드. Σ30.5 - 3*0.5 = 29s (05:00~05:29)
     ] },
+
+  // --- 후반부 (고객 요청으로 끝까지) 05:29 ~ 08:05 ---
+  { kind: "still",  name: "스크린11.png", dur: 4 },                                                  // 05:29
+  { kind: "still",  name: "스크린12.png", dur: 10 },                                                 // 05:33
+  { kind: "scroll", before: "스크린12.png", after: "스크린12 scroll down.png", dur: 22 },             // 05:43
+  { kind: "still",  name: "스크린13.png", dur: 11 },                                                 // 06:05
+  { kind: "still",  name: "스크린14.png", dur: 7 },                                                  // 06:16
+  { kind: "still",  name: "스크린 15.png", dur: 23 },                                                // 06:23  (파일명 공백 주의)
+  { kind: "scroll", before: "스크린 15.png", after: "스크린15 scroll down.png", dur: 7 },             // 06:46
+  { kind: "still",  name: "스크린 16.png", dur: 7 },                                                 // 06:53
+  { kind: "scroll", before: "스크린 16.png", after: "스크린16 scroll down1.png", dur: 11 },           // 07:00
+  { kind: "scroll", before: "스크린16 scroll down1.png", after: "스크린16 scroll down2.png", dur: 7 },// 07:11  (연속 2차 스크롤)
+  { kind: "still",  name: "스크린 17.png", dur: 20 },                                                // 07:18
+  { kind: "still",  name: "스크린18.png", dur: 27 },                                                 // 07:38 ~ 08:05 (마지막 화면)
 ];
 
-const CONTENT_END = 323;   // 05:23 — 여기서 영상/음성 종료
-const FADE = 2;            // 페이드아웃 길이(초) → 5:21~5:23
+const CONTENT_END = 485;   // 08:05 — 음성 끝(내레이션 ~08:03 종료)까지
+const FADE = 2;            // 페이드아웃 길이(초) → 08:03~08:05
 
 // --- 빌드 ----------------------------------------------------------------
 
