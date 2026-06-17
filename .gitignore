@@ -30,3 +30,7 @@ Thumbs.db
 # Claude Code (개인 환경 설정 — 팀 공유 X)
 .claude/settings.json
 .claude/settings.local.json
+
+# Noru 데모 — 빌드 중간물(재생성 가능)과 Word 임시파일 무시
+Noru/build/
+~$*
